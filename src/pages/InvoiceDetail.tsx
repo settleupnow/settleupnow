@@ -19,6 +19,7 @@ export default function InvoiceDetail() {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [editData, setEditData] = useState<Invoice | null>(null);
+  const [sending, setSending] = useState(false);
 
   useEffect(() => {
     getInvoice(id!).then((data) => {
