@@ -70,7 +70,7 @@ export function generateInvoicePdf(
 
   if (invoice.tax_rate && invoice.tax_rate > 0) {
     doc.text(`Tax (${invoice.tax_rate}%):`, rightX, y);
-    doc.text(formatCurrency(taxAmount, invoice.currency), 180, y, { align: "right" });
+    doc.text(formatCurrencyForPdf(taxAmount, invoice.currency), 180, y, { align: "right" });
     y += 6;
   }
 
