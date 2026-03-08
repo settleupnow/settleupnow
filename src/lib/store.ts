@@ -1,6 +1,12 @@
 import { supabase } from "./supabase";
 import { Invoice, MessageTemplates, LineItem, BusinessProfile } from "./types";
 
+async function getCurrentUserId(): Promise<string> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+  return user.id;
+}
+
 const TEMPLATES_KEY = "settleup_templates";
 
 const DEFAULT_TEMPLATES: MessageTemplates = {
