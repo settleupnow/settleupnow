@@ -166,9 +166,9 @@ export function generateInvoicePdfBlob(
   const total = subtotal + taxAmount;
 
   doc.setFontSize(10);
-  const rightX = 145;
+  const rightX = 120;
   doc.text("Subtotal:", rightX, y);
-  doc.text(formatCurrencyForPdf(subtotal, invoice.currency), 180, y, { align: "right" });
+  doc.text(formatCurrencyForPdf(subtotal, invoice.currency), 190, y, { align: "right" });
   y += 6;
 
   if (invoice.tax_rate && invoice.tax_rate > 0) {
