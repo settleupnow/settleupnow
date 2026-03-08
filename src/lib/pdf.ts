@@ -146,8 +146,8 @@ export function generateInvoicePdfBlob(
   const tableBody = lineItems.map((item) => [
     item.description,
     String(item.quantity),
-    formatCurrency(item.unit_price, invoice.currency),
-    formatCurrency(item.amount, invoice.currency),
+    formatCurrencyForPdf(item.unit_price, invoice.currency),
+    formatCurrencyForPdf(item.amount, invoice.currency),
   ]);
 
   autoTable(doc, {
