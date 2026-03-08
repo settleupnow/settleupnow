@@ -55,7 +55,8 @@ export async function getInvoice(id: string): Promise<Invoice | undefined> {
 }
 
 export async function addInvoice(invoice: Omit<Invoice, "id">): Promise<string> {
-  const { data, error } = await supabase.from("invoices").insert(invoice).select("id").single();
+  const userId = await getCurrentUserId();
+  const { data, error } = await supabase.from("invoices").insert({ ...invoice, user_id: userId }).select("id").single();
   if (error) {
     console.error("Error adding invoice:", error);
     throw error;
