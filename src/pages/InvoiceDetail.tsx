@@ -53,26 +53,28 @@ export default function InvoiceDetail() {
   }
 
   async function handleSendReminder() {
+    setSending(true);
     try {
-      const templates = JSON.parse(localStorage.getItem("settleup_templates") || "{}");
       const res = await fetch(
         "https://ijexmbrtbbqbxvusiiew.supabase.co/functions/v1/send-manual-reminder",
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            invoice_id: id,
-            email_template: templates.email || undefined,
-          }),
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({ invoice_id: id }),
         }
       );
       const result = await res.json();
       if (!res.ok) throw new Error(result.error || "Failed to send reminder");
-      toast.success("Reminder sent successfully!");
+      toast.success("Reminder sent!");
       const updated = await getInvoice(id!);
       setInvoice(updated || null);
     } catch (err: any) {
-      toast.error(err.message || "Failed to send reminder");
+      toast.error("Failed to send reminder");
+    } finally {
+      setSending(false);
     }
   }
 
