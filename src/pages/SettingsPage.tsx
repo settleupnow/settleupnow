@@ -151,6 +151,18 @@ export default function SettingsPage() {
           Save Templates
         </Button>
       </div>
+
+      {/* Logout */}
+      <div className="rounded-xl border bg-card p-5">
+        <Button
+          variant="destructive"
+          className="w-full"
+          size="lg"
+          onClick={() => signOut()}
+        >
+          <LogOut className="h-4 w-4 mr-2" /> Log Out
+        </Button>
+      </div>
     </div>
   );
 }

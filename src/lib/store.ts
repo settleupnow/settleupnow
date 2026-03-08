@@ -123,6 +123,7 @@ export async function getBusinessProfile(): Promise<BusinessProfile | null> {
 }
 
 export async function saveBusinessProfile(profile: Omit<BusinessProfile, "id">) {
+  const userId = await getCurrentUserId();
   const existing = await getBusinessProfile();
   if (existing?.id) {
     const { error } = await supabase
@@ -131,7 +132,7 @@ export async function saveBusinessProfile(profile: Omit<BusinessProfile, "id">) 
       .eq("id", existing.id);
     if (error) throw error;
   } else {
-    const { error } = await supabase.from("business_profile").insert(profile);
+    const { error } = await supabase.from("business_profile").insert({ ...profile, user_id: userId });
     if (error) throw error;
   }
 }
