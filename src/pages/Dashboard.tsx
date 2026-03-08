@@ -1,13 +1,22 @@
-import { useMemo } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getInvoices } from "@/lib/store";
+import { Invoice } from "@/lib/types";
 import { formatCurrency } from "@/lib/format";
 import { StatusChip } from "@/components/StatusChip";
-import { Plus, FileText } from "lucide-react";
+import { Plus, FileText, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function Dashboard() {
-  const invoices = useMemo(() => getInvoices(), []);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getInvoices().then((data) => {
+      setInvoices(data);
+      setLoading(false);
+    });
+  }, []);
 
   const totalOutstanding = invoices
     .filter((i) => i.status !== "paid")
@@ -29,6 +38,14 @@ export default function Dashboard() {
   const sorted = [...invoices].sort(
     (a, b) => new Date(a.due_date).getTime() - new Date(b.due_date).getTime()
   );
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
