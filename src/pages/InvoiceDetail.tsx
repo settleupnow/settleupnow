@@ -90,7 +90,9 @@ export default function InvoiceDetail() {
   async function handleSendInvoice() {
     setSendingInvoice(true);
     try {
-      const pdfBlob = generateInvoicePdfBlob(invoice!, lineItems, profile);
+      // Fetch fresh line items from DB to ensure PDF has correct data
+      const freshLineItems = await getLineItems(id!);
+      const pdfBlob = generateInvoicePdfBlob(invoice!, freshLineItems, profile);
       const reader = new FileReader();
       const base64 = await new Promise<string>((resolve, reject) => {
         reader.onload = () => {
