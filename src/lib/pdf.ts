@@ -63,21 +63,21 @@ export function generateInvoicePdf(
   const total = subtotal + taxAmount;
 
   doc.setFontSize(10);
-  const rightX = 145;
+  const rightX = 120;
   doc.text("Subtotal:", rightX, y);
-  doc.text(formatCurrencyForPdf(subtotal, invoice.currency), 180, y, { align: "right" });
+  doc.text(formatCurrencyForPdf(subtotal, invoice.currency), 190, y, { align: "right" });
   y += 6;
 
   if (invoice.tax_rate && invoice.tax_rate > 0) {
     doc.text(`Tax (${invoice.tax_rate}%):`, rightX, y);
-    doc.text(formatCurrencyForPdf(taxAmount, invoice.currency), 180, y, { align: "right" });
+    doc.text(formatCurrencyForPdf(taxAmount, invoice.currency), 190, y, { align: "right" });
     y += 6;
   }
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
   doc.text("Total:", rightX, y);
-  doc.text(formatCurrencyForPdf(total, invoice.currency), 180, y, { align: "right" });
+  doc.text(formatCurrencyForPdf(total, invoice.currency), 190, y, { align: "right" });
   y += 14;
 
   // Payment link
@@ -166,21 +166,21 @@ export function generateInvoicePdfBlob(
   const total = subtotal + taxAmount;
 
   doc.setFontSize(10);
-  const rightX = 145;
+  const rightX = 120;
   doc.text("Subtotal:", rightX, y);
-  doc.text(formatCurrencyForPdf(subtotal, invoice.currency), 180, y, { align: "right" });
+  doc.text(formatCurrencyForPdf(subtotal, invoice.currency), 190, y, { align: "right" });
   y += 6;
 
   if (invoice.tax_rate && invoice.tax_rate > 0) {
     doc.text(`Tax (${invoice.tax_rate}%):`, rightX, y);
-    doc.text(formatCurrencyForPdf(taxAmount, invoice.currency), 180, y, { align: "right" });
+    doc.text(formatCurrencyForPdf(taxAmount, invoice.currency), 190, y, { align: "right" });
     y += 6;
   }
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
   doc.text("Total:", rightX, y);
-  doc.text(formatCurrencyForPdf(total, invoice.currency), 180, y, { align: "right" });
+  doc.text(formatCurrencyForPdf(total, invoice.currency), 190, y, { align: "right" });
   y += 14;
 
   if (invoice.payment_link) {
