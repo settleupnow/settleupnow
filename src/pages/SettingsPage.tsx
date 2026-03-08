@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { getTemplates, saveTemplates, getBusinessProfile, saveBusinessProfile } from "@/lib/store";
 import { BusinessProfile } from "@/lib/types";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, LogOut } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
