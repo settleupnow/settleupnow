@@ -1,7 +1,7 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { Invoice, LineItem, BusinessProfile } from "./types";
-import { formatCurrency } from "./format";
+import { formatCurrencyForPdf } from "./format";
 
 export function generateInvoicePdf(
   invoice: Invoice,
