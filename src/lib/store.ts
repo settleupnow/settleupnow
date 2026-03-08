@@ -1,6 +1,12 @@
 import { supabase } from "./supabase";
 import { Invoice, MessageTemplates, LineItem, BusinessProfile } from "./types";
 
+async function getCurrentUserId(): Promise<string> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+  return user.id;
+}
+
 const TEMPLATES_KEY = "settleup_templates";
 
 const DEFAULT_TEMPLATES: MessageTemplates = {
@@ -49,7 +55,8 @@ export async function getInvoice(id: string): Promise<Invoice | undefined> {
 }
 
 export async function addInvoice(invoice: Omit<Invoice, "id">): Promise<string> {
-  const { data, error } = await supabase.from("invoices").insert(invoice).select("id").single();
+  const userId = await getCurrentUserId();
+  const { data, error } = await supabase.from("invoices").insert({ ...invoice, user_id: userId }).select("id").single();
   if (error) {
     console.error("Error adding invoice:", error);
     throw error;
@@ -101,9 +108,11 @@ export async function getLineItems(invoiceId: string): Promise<LineItem[]> {
 
 // Business Profile
 export async function getBusinessProfile(): Promise<BusinessProfile | null> {
+  const userId = await getCurrentUserId();
   const { data, error } = await supabase
     .from("business_profile")
     .select("*")
+    .eq("user_id", userId)
     .limit(1)
     .maybeSingle();
   if (error) {
@@ -114,6 +123,7 @@ export async function getBusinessProfile(): Promise<BusinessProfile | null> {
 }
 
 export async function saveBusinessProfile(profile: Omit<BusinessProfile, "id">) {
+  const userId = await getCurrentUserId();
   const existing = await getBusinessProfile();
   if (existing?.id) {
     const { error } = await supabase
@@ -122,7 +132,7 @@ export async function saveBusinessProfile(profile: Omit<BusinessProfile, "id">) 
       .eq("id", existing.id);
     if (error) throw error;
   } else {
-    const { error } = await supabase.from("business_profile").insert(profile);
+    const { error } = await supabase.from("business_profile").insert({ ...profile, user_id: userId });
     if (error) throw error;
   }
 }

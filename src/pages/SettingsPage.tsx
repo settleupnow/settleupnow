@@ -1,15 +1,17 @@
 import { useState, useEffect } from "react";
 import { getTemplates, saveTemplates, getBusinessProfile, saveBusinessProfile } from "@/lib/store";
 import { BusinessProfile } from "@/lib/types";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, LogOut } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 export default function SettingsPage() {
+  const { signOut } = useAuth();
   const [templates, setTemplates] = useState(getTemplates);
   const [profile, setProfile] = useState<Omit<BusinessProfile, "id">>({
     business_name: "",
@@ -147,6 +149,18 @@ export default function SettingsPage() {
 
         <Button onClick={handleSaveTemplates} className="w-full" size="lg">
           Save Templates
+        </Button>
+      </div>
+
+      {/* Logout */}
+      <div className="rounded-xl border bg-card p-5">
+        <Button
+          variant="destructive"
+          className="w-full"
+          size="lg"
+          onClick={() => signOut()}
+        >
+          <LogOut className="h-4 w-4 mr-2" /> Log Out
         </Button>
       </div>
     </div>
