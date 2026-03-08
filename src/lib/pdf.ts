@@ -65,7 +65,7 @@ export function generateInvoicePdf(
   doc.setFontSize(10);
   const rightX = 145;
   doc.text("Subtotal:", rightX, y);
-  doc.text(formatCurrency(subtotal, invoice.currency), 180, y, { align: "right" });
+  doc.text(formatCurrencyForPdf(subtotal, invoice.currency), 180, y, { align: "right" });
   y += 6;
 
   if (invoice.tax_rate && invoice.tax_rate > 0) {
