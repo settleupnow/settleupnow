@@ -78,8 +78,8 @@ export async function deleteInvoice(id: string) {
 
 // Line Items
 export async function addLineItems(items: LineItem[]) {
-  // Omit 'id' to let the DB auto-generate it; keep 'amount'
-  const cleanItems = items.map(({ id, ...rest }) => rest);
+  // Omit 'id' and 'amount' — amount is a generated column in the DB
+  const cleanItems = items.map(({ id, amount, ...rest }) => rest);
   const { error } = await supabase.from("line_items").insert(cleanItems);
   if (error) {
     console.error("Error adding line items:", error);
