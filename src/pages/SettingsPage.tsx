@@ -11,6 +11,7 @@ import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 export default function SettingsPage() {
+  const { signOut } = useAuth();
   const [templates, setTemplates] = useState(getTemplates);
   const [profile, setProfile] = useState<Omit<BusinessProfile, "id">>({
     business_name: "",
