@@ -77,7 +77,7 @@ export function generateInvoicePdf(
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
   doc.text("Total:", rightX, y);
-  doc.text(formatCurrencyForPdf(total, invoice.currency), 180, y, { align: "right" });
+  doc.text(formatCurrencyForPdf(total, invoice.currency), 190, y, { align: "right" });
   y += 14;
 
   // Payment link
