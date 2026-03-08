@@ -1,7 +1,7 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { Invoice, LineItem, BusinessProfile } from "./types";
-import { formatCurrency } from "./format";
+import { formatCurrencyForPdf } from "./format";
 
 export function generateInvoicePdf(
   invoice: Invoice,
@@ -42,8 +42,8 @@ export function generateInvoicePdf(
   const tableBody = lineItems.map((item) => [
     item.description,
     String(item.quantity),
-    formatCurrency(item.unit_price, invoice.currency),
-    formatCurrency(item.amount, invoice.currency),
+    formatCurrencyForPdf(item.unit_price, invoice.currency),
+    formatCurrencyForPdf(item.amount, invoice.currency),
   ]);
 
   autoTable(doc, {
@@ -65,19 +65,19 @@ export function generateInvoicePdf(
   doc.setFontSize(10);
   const rightX = 145;
   doc.text("Subtotal:", rightX, y);
-  doc.text(formatCurrency(subtotal, invoice.currency), 180, y, { align: "right" });
+  doc.text(formatCurrencyForPdf(subtotal, invoice.currency), 180, y, { align: "right" });
   y += 6;
 
   if (invoice.tax_rate && invoice.tax_rate > 0) {
     doc.text(`Tax (${invoice.tax_rate}%):`, rightX, y);
-    doc.text(formatCurrency(taxAmount, invoice.currency), 180, y, { align: "right" });
+    doc.text(formatCurrencyForPdf(taxAmount, invoice.currency), 180, y, { align: "right" });
     y += 6;
   }
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
   doc.text("Total:", rightX, y);
-  doc.text(formatCurrency(total, invoice.currency), 180, y, { align: "right" });
+  doc.text(formatCurrencyForPdf(total, invoice.currency), 180, y, { align: "right" });
   y += 14;
 
   // Payment link
@@ -146,8 +146,8 @@ export function generateInvoicePdfBlob(
   const tableBody = lineItems.map((item) => [
     item.description,
     String(item.quantity),
-    formatCurrency(item.unit_price, invoice.currency),
-    formatCurrency(item.amount, invoice.currency),
+    formatCurrencyForPdf(item.unit_price, invoice.currency),
+    formatCurrencyForPdf(item.amount, invoice.currency),
   ]);
 
   autoTable(doc, {
@@ -168,19 +168,19 @@ export function generateInvoicePdfBlob(
   doc.setFontSize(10);
   const rightX = 145;
   doc.text("Subtotal:", rightX, y);
-  doc.text(formatCurrency(subtotal, invoice.currency), 180, y, { align: "right" });
+  doc.text(formatCurrencyForPdf(subtotal, invoice.currency), 180, y, { align: "right" });
   y += 6;
 
   if (invoice.tax_rate && invoice.tax_rate > 0) {
     doc.text(`Tax (${invoice.tax_rate}%):`, rightX, y);
-    doc.text(formatCurrency(taxAmount, invoice.currency), 180, y, { align: "right" });
+    doc.text(formatCurrencyForPdf(taxAmount, invoice.currency), 180, y, { align: "right" });
     y += 6;
   }
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
   doc.text("Total:", rightX, y);
-  doc.text(formatCurrency(total, invoice.currency), 180, y, { align: "right" });
+  doc.text(formatCurrencyForPdf(total, invoice.currency), 180, y, { align: "right" });
   y += 14;
 
   if (invoice.payment_link) {

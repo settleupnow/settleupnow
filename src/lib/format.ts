@@ -11,6 +11,15 @@ export function formatCurrency(amount: number, currency: string): string {
   }
 }
 
+/** PDF-safe currency format — uses ISO code instead of non-ASCII symbols (e.g. ₦ → NGN) */
+export function formatCurrencyForPdf(amount: number, currency: string): string {
+  const num = new Intl.NumberFormat("en", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(amount);
+  return `${currency} ${num}`;
+}
+
 export function daysOverdue(dueDate: string): number {
   const now = new Date();
   now.setHours(0, 0, 0, 0);
