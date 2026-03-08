@@ -108,9 +108,11 @@ export async function getLineItems(invoiceId: string): Promise<LineItem[]> {
 
 // Business Profile
 export async function getBusinessProfile(): Promise<BusinessProfile | null> {
+  const userId = await getCurrentUserId();
   const { data, error } = await supabase
     .from("business_profile")
     .select("*")
+    .eq("user_id", userId)
     .limit(1)
     .maybeSingle();
   if (error) {
