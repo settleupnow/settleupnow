@@ -61,7 +61,7 @@ export default function InvoiceDetail() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+            "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlqZXhtYnJ0YmJxYnh2dXNpaWV3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5NzYxMDEsImV4cCI6MjA4ODU1MjEwMX0.s4mZwGSOt9HpTYbDKXQz4MkMBDxp4ADz2QXkmUbT_DE",
           },
           body: JSON.stringify({ invoice_id: id }),
         }
