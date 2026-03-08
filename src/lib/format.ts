@@ -11,16 +11,13 @@ export function formatCurrency(amount: number, currency: string): string {
   }
 }
 
-/** PDF-safe currency format — replaces non-ASCII symbols (e.g. ₦) with currency code */
+/** PDF-safe currency format — uses ISO code instead of non-ASCII symbols (e.g. ₦ → NGN) */
 export function formatCurrencyForPdf(amount: number, currency: string): string {
-  const formatted = formatCurrency(amount, currency);
-  // Replace any non-ASCII currency symbols with the ISO code
-  const cleaned = formatted.replace(/[^\x00-\x7F]+/g, "").trim();
-  // If the symbol was stripped, prefix with currency code
-  if (cleaned === amount.toLocaleString("en-NG", { minimumFractionDigits: 0, maximumFractionDigits: 2 }) || !cleaned.match(/[a-zA-Z]/)) {
-    return `${currency} ${cleaned || amount.toLocaleString("en", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
-  }
-  return formatted;
+  const num = new Intl.NumberFormat("en", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(amount);
+  return `${currency} ${num}`;
 }
 
 export function daysOverdue(dueDate: string): number {
