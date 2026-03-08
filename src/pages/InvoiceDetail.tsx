@@ -6,7 +6,7 @@ import { formatCurrency, daysOverdue } from "@/lib/format";
 import { StatusChip } from "@/components/StatusChip";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Send, CheckCircle2, Clock, Pencil, Loader2 } from "lucide-react";
-import { SUPABASE_ANON_KEY } from "@/lib/supabase";
+
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -61,7 +61,7 @@ export default function InvoiceDetail() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+            "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlqZXhtYnJ0YmJxYnh2dXNpaWV3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5NzYxMDEsImV4cCI6MjA4ODU1MjEwMX0.s4mZwGSOt9HpTYbDKXQz4MkMBDxp4ADz2QXkmUbT_DE",
           },
           body: JSON.stringify({ invoice_id: id }),
         }
