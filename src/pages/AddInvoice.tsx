@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { addInvoice } from "@/lib/store";
-import { Invoice } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,8 +22,9 @@ export default function AddInvoice() {
   const [currency, setCurrency] = useState("NGN");
   const [dueDate, setDueDate] = useState<Date>();
   const [notes, setNotes] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!clientName || !clientEmail || !amount || !dueDate) {
       toast.error("Please fill in all required fields.");
@@ -36,25 +36,29 @@ export default function AddInvoice() {
     const due = new Date(dueDate);
     due.setHours(0, 0, 0, 0);
 
-    const invoice: Invoice = {
-      id: crypto.randomUUID(),
-      client_name: clientName,
-      client_email: clientEmail,
-      client_whatsapp: clientWhatsapp,
-      invoice_amount: parseFloat(amount),
-      currency,
-      due_date: dueDate.toISOString().split("T")[0],
-      status: due < now ? "overdue" : "unpaid",
-      reminder_count: 0,
-      last_reminder_sent: null,
-      paid_at: null,
-      notes,
-      created_at: new Date().toISOString(),
-    };
-
-    addInvoice(invoice);
-    toast.success("Invoice created!");
-    navigate(`/invoice/${invoice.id}`);
+    setSubmitting(true);
+    try {
+      await addInvoice({
+        client_name: clientName,
+        client_email: clientEmail,
+        client_whatsapp: clientWhatsapp,
+        invoice_amount: parseFloat(amount),
+        currency,
+        due_date: dueDate.toISOString().split("T")[0],
+        status: due < now ? "overdue" : "unpaid",
+        reminder_count: 0,
+        last_reminder_sent: null,
+        paid_at: null,
+        notes,
+        created_at: new Date().toISOString(),
+      });
+      toast.success("Invoice created!");
+      navigate("/");
+    } catch {
+      toast.error("Failed to create invoice.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -111,8 +115,8 @@ export default function AddInvoice() {
           <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Optional notes..." rows={3} />
         </div>
 
-        <Button type="submit" className="w-full" size="lg">
-          Create Invoice
+        <Button type="submit" className="w-full" size="lg" disabled={submitting}>
+          {submitting ? "Creating..." : "Create Invoice"}
         </Button>
       </form>
     </div>

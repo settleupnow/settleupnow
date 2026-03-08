@@ -1,10 +1,11 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { getInvoice, updateInvoice } from "@/lib/store";
+import { Invoice } from "@/lib/types";
 import { formatCurrency, daysOverdue } from "@/lib/format";
 import { StatusChip } from "@/components/StatusChip";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Send, CheckCircle2, Clock, Pencil } from "lucide-react";
+import { ArrowLeft, Send, CheckCircle2, Clock, Pencil, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,13 +14,25 @@ import { Textarea } from "@/components/ui/textarea";
 export default function InvoiceDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [invoice, setInvoice] = useState<Invoice | null>(null);
+  const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
-  const [, setRefresh] = useState(0);
+  const [editData, setEditData] = useState<Invoice | null>(null);
 
-  const invoice = useMemo(() => getInvoice(id!), [id, editing]);
+  useEffect(() => {
+    getInvoice(id!).then((data) => {
+      setInvoice(data || null);
+      setLoading(false);
+    });
+  }, [id]);
 
-  // Edit state
-  const [editData, setEditData] = useState(() => invoice);
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   if (!invoice) {
     return (
@@ -30,26 +43,27 @@ export default function InvoiceDetail() {
     );
   }
 
-  function handleMarkPaid() {
-    updateInvoice(id!, { status: "paid", paid_at: new Date().toISOString() });
-    setRefresh((r) => r + 1);
+  async function handleMarkPaid() {
+    await updateInvoice(id!, { status: "paid", paid_at: new Date().toISOString() });
     toast.success("Invoice marked as paid!");
-    navigate(0); // refresh
+    const updated = await getInvoice(id!);
+    setInvoice(updated || null);
   }
 
-  function handleSendReminder() {
-    updateInvoice(id!, {
+  async function handleSendReminder() {
+    await updateInvoice(id!, {
       reminder_count: invoice!.reminder_count + 1,
       last_reminder_sent: new Date().toISOString(),
     });
     toast.success("Reminder triggered successfully!");
-    navigate(0);
+    const updated = await getInvoice(id!);
+    setInvoice(updated || null);
   }
 
-  function handleSaveEdit(e: React.FormEvent) {
+  async function handleSaveEdit(e: React.FormEvent) {
     e.preventDefault();
     if (!editData) return;
-    updateInvoice(id!, {
+    await updateInvoice(id!, {
       client_name: editData.client_name,
       client_email: editData.client_email,
       client_whatsapp: editData.client_whatsapp,
@@ -59,7 +73,8 @@ export default function InvoiceDetail() {
     });
     setEditing(false);
     toast.success("Invoice updated!");
-    navigate(0);
+    const updated = await getInvoice(id!);
+    setInvoice(updated || null);
   }
 
   const overdueDays = daysOverdue(invoice.due_date);
