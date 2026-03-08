@@ -3,3 +3,6 @@ verify_jwt = false
 
 [functions.send-manual-reminder]
 verify_jwt = false
+
+[functions.send-invoice]
+verify_jwt = false

@@ -1,5 +1,5 @@
 import { supabase } from "./supabase";
-import { Invoice, MessageTemplates } from "./types";
+import { Invoice, MessageTemplates, LineItem, BusinessProfile } from "./types";
 
 const TEMPLATES_KEY = "settleup_templates";
 
@@ -48,12 +48,13 @@ export async function getInvoice(id: string): Promise<Invoice | undefined> {
   return data as Invoice;
 }
 
-export async function addInvoice(invoice: Omit<Invoice, "id">) {
-  const { error } = await supabase.from("invoices").insert(invoice);
+export async function addInvoice(invoice: Omit<Invoice, "id">): Promise<string> {
+  const { data, error } = await supabase.from("invoices").insert(invoice).select("id").single();
   if (error) {
     console.error("Error adding invoice:", error);
     throw error;
   }
+  return data.id;
 }
 
 export async function updateInvoice(id: string, updates: Partial<Invoice>) {
@@ -73,6 +74,74 @@ export async function deleteInvoice(id: string) {
     console.error("Error deleting invoice:", error);
     throw error;
   }
+}
+
+// Line Items
+export async function addLineItems(items: LineItem[]) {
+  const { error } = await supabase.from("line_items").insert(items);
+  if (error) {
+    console.error("Error adding line items:", error);
+    throw error;
+  }
+}
+
+export async function getLineItems(invoiceId: string): Promise<LineItem[]> {
+  const { data, error } = await supabase
+    .from("line_items")
+    .select("*")
+    .eq("invoice_id", invoiceId);
+  if (error) {
+    console.error("Error fetching line items:", error);
+    return [];
+  }
+  return data as LineItem[];
+}
+
+// Business Profile
+export async function getBusinessProfile(): Promise<BusinessProfile | null> {
+  const { data, error } = await supabase
+    .from("business_profile")
+    .select("*")
+    .limit(1)
+    .maybeSingle();
+  if (error) {
+    console.error("Error fetching business profile:", error);
+    return null;
+  }
+  return data as BusinessProfile | null;
+}
+
+export async function saveBusinessProfile(profile: Omit<BusinessProfile, "id">) {
+  const existing = await getBusinessProfile();
+  if (existing?.id) {
+    const { error } = await supabase
+      .from("business_profile")
+      .update(profile)
+      .eq("id", existing.id);
+    if (error) throw error;
+  } else {
+    const { error } = await supabase.from("business_profile").insert(profile);
+    if (error) throw error;
+  }
+}
+
+// Next invoice number
+export async function getNextInvoiceNumber(): Promise<string> {
+  const { data } = await supabase
+    .from("invoices")
+    .select("invoice_number")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (data?.invoice_number) {
+    const match = data.invoice_number.match(/INV-(\d+)/);
+    if (match) {
+      const next = parseInt(match[1], 10) + 1;
+      return `INV-${String(next).padStart(3, "0")}`;
+    }
+  }
+  return "INV-001";
 }
 
 // Templates stay in localStorage (no table needed)

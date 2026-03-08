@@ -14,6 +14,30 @@ export interface Invoice {
   paid_at: string | null;
   notes: string;
   created_at: string;
+  invoice_number: string;
+  tax_rate: number;
+  payment_link: string | null;
+  bank_name: string | null;
+  bank_account_number: string | null;
+  bank_account_name: string | null;
+}
+
+export interface LineItem {
+  id?: string;
+  invoice_id?: string;
+  description: string;
+  quantity: number;
+  unit_price: number;
+  amount: number;
+}
+
+export interface BusinessProfile {
+  id?: string;
+  business_name: string;
+  logo_url: string | null;
+  bank_name: string;
+  bank_account_number: string;
+  bank_account_name: string;
 }
 
 export interface MessageTemplates {

@@ -1,32 +1,43 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { getInvoice, updateInvoice } from "@/lib/store";
-import { Invoice } from "@/lib/types";
+import { getInvoice, updateInvoice, getLineItems, getBusinessProfile } from "@/lib/store";
+import { Invoice, LineItem, BusinessProfile } from "@/lib/types";
 import { formatCurrency, daysOverdue } from "@/lib/format";
+import { generateInvoicePdfBlob } from "@/lib/pdf";
 import { StatusChip } from "@/components/StatusChip";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Send, CheckCircle2, Clock, Pencil, Loader2 } from "lucide-react";
-
+import { ArrowLeft, Send, CheckCircle2, Clock, Pencil, Loader2, FileText } from "lucide-react";
 import { toast } from "sonner";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { InvoiceEditForm } from "@/components/InvoiceEditForm";
 
 export default function InvoiceDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [invoice, setInvoice] = useState<Invoice | null>(null);
+  const [lineItems, setLineItems] = useState<LineItem[]>([]);
+  const [profile, setProfile] = useState<BusinessProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
-  const [editData, setEditData] = useState<Invoice | null>(null);
   const [sending, setSending] = useState(false);
+  const [sendingInvoice, setSendingInvoice] = useState(false);
 
   useEffect(() => {
-    getInvoice(id!).then((data) => {
-      setInvoice(data || null);
+    Promise.all([
+      getInvoice(id!),
+      getLineItems(id!),
+      getBusinessProfile(),
+    ]).then(([inv, items, prof]) => {
+      setInvoice(inv || null);
+      setLineItems(items);
+      setProfile(prof);
       setLoading(false);
     });
   }, [id]);
+
+  async function refreshInvoice() {
+    const updated = await getInvoice(id!);
+    setInvoice(updated || null);
+  }
 
   if (loading) {
     return (
@@ -48,8 +59,7 @@ export default function InvoiceDetail() {
   async function handleMarkPaid() {
     await updateInvoice(id!, { status: "paid", paid_at: new Date().toISOString() });
     toast.success("Invoice marked as paid!");
-    const updated = await getInvoice(id!);
-    setInvoice(updated || null);
+    await refreshInvoice();
   }
 
   async function handleSendReminder() {
@@ -69,76 +79,70 @@ export default function InvoiceDetail() {
       const result = await res.json();
       if (!res.ok) throw new Error(result.error || "Failed to send reminder");
       toast.success("Reminder sent!");
-      const updated = await getInvoice(id!);
-      setInvoice(updated || null);
-    } catch (err: any) {
+      await refreshInvoice();
+    } catch {
       toast.error("Failed to send reminder");
     } finally {
       setSending(false);
     }
   }
 
-  async function handleSaveEdit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!editData) return;
-    await updateInvoice(id!, {
-      client_name: editData.client_name,
-      client_email: editData.client_email,
-      client_whatsapp: editData.client_whatsapp,
-      invoice_amount: editData.invoice_amount,
-      currency: editData.currency,
-      notes: editData.notes,
-    });
+  async function handleSendInvoice() {
+    setSendingInvoice(true);
+    try {
+      const pdfBlob = generateInvoicePdfBlob(invoice!, lineItems, profile);
+      const reader = new FileReader();
+      const base64 = await new Promise<string>((resolve, reject) => {
+        reader.onload = () => {
+          const result = reader.result as string;
+          resolve(result.split(",")[1]);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(pdfBlob);
+      });
+
+      const res = await fetch(
+        "https://ijexmbrtbbqbxvusiiew.supabase.co/functions/v1/send-invoice",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlqZXhtYnJ0YmJxYnh2dXNpaWV3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5NzYxMDEsImV4cCI6MjA4ODU1MjEwMX0.s4mZwGSOt9HpTYbDKXQz4MkMBDxp4ADz2QXkmUbT_DE",
+          },
+          body: JSON.stringify({
+            to: invoice!.client_email,
+            client_name: invoice!.client_name,
+            invoice_number: invoice!.invoice_number,
+            pdf_base64: base64,
+          }),
+        }
+      );
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || "Failed to send invoice");
+      toast.success("Invoice sent!");
+    } catch {
+      toast.error("Failed to send invoice");
+    } finally {
+      setSendingInvoice(false);
+    }
+  }
+
+  async function handleSaveEdit(editData: Partial<Invoice>) {
+    await updateInvoice(id!, editData);
     setEditing(false);
     toast.success("Invoice updated!");
-    const updated = await getInvoice(id!);
-    setInvoice(updated || null);
+    await refreshInvoice();
   }
 
   const overdueDays = daysOverdue(invoice.due_date);
 
-  if (editing && editData) {
+  if (editing) {
     return (
-      <div className="space-y-6">
-        <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => setEditing(false)}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="text-2xl font-bold text-foreground">Edit Invoice</h1>
-        </div>
-        <form onSubmit={handleSaveEdit} className="space-y-4">
-          <div className="space-y-2">
-            <Label>Client Name</Label>
-            <Input value={editData.client_name} onChange={(e) => setEditData({ ...editData, client_name: e.target.value })} />
-          </div>
-          <div className="space-y-2">
-            <Label>Client Email</Label>
-            <Input value={editData.client_email} onChange={(e) => setEditData({ ...editData, client_email: e.target.value })} />
-          </div>
-          <div className="space-y-2">
-            <Label>WhatsApp</Label>
-            <Input value={editData.client_whatsapp} onChange={(e) => setEditData({ ...editData, client_whatsapp: e.target.value })} />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Amount</Label>
-              <Input type="number" value={editData.invoice_amount} onChange={(e) => setEditData({ ...editData, invoice_amount: parseFloat(e.target.value) || 0 })} />
-            </div>
-            <div className="space-y-2">
-              <Label>Currency</Label>
-              <Input value={editData.currency} onChange={(e) => setEditData({ ...editData, currency: e.target.value })} />
-            </div>
-          </div>
-          <div className="space-y-2">
-            <Label>Notes</Label>
-            <Textarea value={editData.notes} onChange={(e) => setEditData({ ...editData, notes: e.target.value })} rows={3} />
-          </div>
-          <div className="flex gap-3">
-            <Button type="button" variant="outline" className="flex-1" onClick={() => setEditing(false)}>Cancel</Button>
-            <Button type="submit" className="flex-1">Save Changes</Button>
-          </div>
-        </form>
-      </div>
+      <InvoiceEditForm
+        invoice={invoice}
+        onSave={handleSaveEdit}
+        onCancel={() => setEditing(false)}
+      />
     );
   }
 
@@ -149,7 +153,7 @@ export default function InvoiceDetail() {
           <Link to="/"><ArrowLeft className="h-5 w-5" /></Link>
         </Button>
         <h1 className="text-2xl font-bold text-foreground flex-1">Invoice Detail</h1>
-        <Button variant="ghost" size="icon" onClick={() => { setEditData(invoice); setEditing(true); }}>
+        <Button variant="ghost" size="icon" onClick={() => setEditing(true)}>
           <Pencil className="h-4 w-4" />
         </Button>
       </div>
@@ -169,6 +173,12 @@ export default function InvoiceDetail() {
         <div className="h-px bg-border" />
 
         <div className="grid grid-cols-2 gap-4 text-sm">
+          {invoice.invoice_number && (
+            <div>
+              <p className="text-muted-foreground">Invoice #</p>
+              <p className="font-semibold text-foreground">{invoice.invoice_number}</p>
+            </div>
+          )}
           <div>
             <p className="text-muted-foreground">Amount</p>
             <p className="font-semibold text-lg text-foreground">{formatCurrency(invoice.invoice_amount, invoice.currency)}</p>
@@ -194,6 +204,28 @@ export default function InvoiceDetail() {
           )}
         </div>
 
+        {/* Line Items */}
+        {lineItems.length > 0 && (
+          <>
+            <div className="h-px bg-border" />
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-muted-foreground">Line Items</p>
+              {lineItems.map((li, i) => (
+                <div key={li.id || i} className="flex justify-between text-sm">
+                  <span className="text-foreground">{li.description} × {li.quantity}</span>
+                  <span className="font-medium text-foreground">{formatCurrency(li.amount, invoice.currency)}</span>
+                </div>
+              ))}
+              {invoice.tax_rate > 0 && (
+                <div className="flex justify-between text-sm text-muted-foreground pt-1 border-t border-border">
+                  <span>Tax ({invoice.tax_rate}%)</span>
+                  <span>{formatCurrency(invoice.invoice_amount - lineItems.reduce((s, li) => s + li.amount, 0), invoice.currency)}</span>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
         {invoice.notes && (
           <>
             <div className="h-px bg-border" />
@@ -213,6 +245,19 @@ export default function InvoiceDetail() {
           </Button>
         )}
         <Button
+          className="w-full"
+          size="lg"
+          onClick={handleSendInvoice}
+          disabled={sendingInvoice}
+        >
+          {sendingInvoice ? (
+            <><Loader2 className="h-5 w-5 mr-2 animate-spin" /> Sending Invoice...</>
+          ) : (
+            <><FileText className="h-5 w-5 mr-2" /> Send Invoice</>
+          )}
+        </Button>
+        <Button
+          variant="outline"
           className="w-full"
           size="lg"
           onClick={handleSendReminder}
