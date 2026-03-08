@@ -216,9 +216,13 @@ export default function InvoiceDetail() {
           className="w-full"
           size="lg"
           onClick={handleSendReminder}
-          disabled={invoice.status === "paid"}
+          disabled={invoice.status === "paid" || sending}
         >
-          <Send className="h-5 w-5 mr-2" /> Send Reminder
+          {sending ? (
+            <><Loader2 className="h-5 w-5 mr-2 animate-spin" /> Sending...</>
+          ) : (
+            <><Send className="h-5 w-5 mr-2" /> Send Reminder</>
+          )}
         </Button>
       </div>
 
