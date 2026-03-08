@@ -6,6 +6,7 @@ import { formatCurrency, daysOverdue } from "@/lib/format";
 import { StatusChip } from "@/components/StatusChip";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Send, CheckCircle2, Clock, Pencil, Loader2 } from "lucide-react";
+import { SUPABASE_ANON_KEY } from "@/lib/supabase";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
