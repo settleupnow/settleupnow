@@ -205,7 +205,7 @@ export default function AddInvoice() {
             </div>
           ))}
           <Button type="button" variant="outline" size="sm" onClick={addLineItemRow} className="w-full">
-            <Plus className="h-4 w-4 mr-1" /> Add Line Item
+            <AddCircleLine className="h-4 w-4 mr-1" /> Add Line Item
           </Button>
         </div>
 
