@@ -166,12 +166,27 @@ export default function AddInvoice() {
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <Label className="text-xs">Qty</Label>
-                  <Input
-                    type="number"
-                    min="1"
-                    value={item.quantity}
-                    onChange={(e) => updateLineItem(i, "quantity", parseFloat(e.target.value) || 0)}
-                  />
+                  <div className="flex items-center gap-1">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="h-10 w-10 shrink-0"
+                      onClick={() => updateLineItem(i, "quantity", Math.max(1, item.quantity - 1))}
+                    >
+                      <span className="text-lg font-medium">−</span>
+                    </Button>
+                    <span className="flex-1 text-center text-sm font-medium text-foreground">{item.quantity}</span>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="h-10 w-10 shrink-0"
+                      onClick={() => updateLineItem(i, "quantity", item.quantity + 1)}
+                    >
+                      <span className="text-lg font-medium">+</span>
+                    </Button>
+                  </div>
                 </div>
                 <div>
                   <Label className="text-xs">Unit Price</Label>
