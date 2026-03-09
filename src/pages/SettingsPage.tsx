@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Loader2, LogOut } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
+import { trigger } from "@/lib/haptics";
 
 export default function SettingsPage() {
   const { signOut } = useAuth();
@@ -39,6 +40,7 @@ export default function SettingsPage() {
   }, []);
 
   function handleSaveTemplates() {
+    trigger("success");
     saveTemplates(templates);
     toast.success("Templates saved!");
   }
@@ -47,8 +49,10 @@ export default function SettingsPage() {
     setSavingProfile(true);
     try {
       await saveBusinessProfile(profile);
+      trigger("success");
       toast.success("Business profile saved!");
     } catch {
+      trigger("error");
       toast.error("Failed to save profile.");
     } finally {
       setSavingProfile(false);
@@ -72,7 +76,7 @@ export default function SettingsPage() {
             <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
           </div>
         ) : (
-          <>
+          <div className="stagger-children space-y-4">
             <div className="space-y-2">
               <Label>Business Name</Label>
               <Input
@@ -116,7 +120,7 @@ export default function SettingsPage() {
             <Button onClick={handleSaveProfile} className="w-full" size="lg" disabled={savingProfile}>
               {savingProfile ? "Saving..." : "Save Business Profile"}
             </Button>
-          </>
+          </div>
         )}
       </div>
 
@@ -158,7 +162,7 @@ export default function SettingsPage() {
           variant="destructive"
           className="w-full"
           size="lg"
-          onClick={() => signOut()}
+          onClick={() => { trigger("warning"); signOut(); }}
         >
           <LogOut className="h-4 w-4 mr-2" /> Log Out
         </Button>

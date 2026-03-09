@@ -14,7 +14,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['"DM Sans"', 'system-ui', 'sans-serif'],
+        sans: ['"Radio Canada Big"', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",

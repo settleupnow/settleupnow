@@ -6,6 +6,7 @@ import { formatCurrency } from "@/lib/format";
 import { StatusChip } from "@/components/StatusChip";
 import { Plus, FileText, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { trigger } from "@/lib/haptics";
 
 export default function Dashboard() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
@@ -51,7 +52,7 @@ export default function Dashboard() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
-        <Button asChild size="sm">
+        <Button asChild size="sm" onClick={() => trigger("light")}>
           <Link to="/add">
             <Plus className="h-4 w-4 mr-1" /> New Invoice
           </Link>
@@ -59,7 +60,7 @@ export default function Dashboard() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 stagger-children">
         <div className="rounded-xl border bg-card p-4">
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Total Outstanding</p>
           <p className="text-2xl font-bold mt-1 text-foreground">{formatCurrency(totalOutstanding, "NGN")}</p>
@@ -84,11 +85,12 @@ export default function Dashboard() {
           </Button>
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-2 stagger-children">
           {sorted.map((inv) => (
             <Link
               key={inv.id}
               to={`/invoice/${inv.id}`}
+              onClick={() => trigger("light")}
               className="flex items-center justify-between p-4 rounded-xl border bg-card hover:bg-accent/50 transition-colors"
             >
               <div className="min-w-0 flex-1">
