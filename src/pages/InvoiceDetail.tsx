@@ -276,7 +276,7 @@ export default function InvoiceDetail() {
           {sending ? (
             <><Loading3Line className="h-5 w-5 mr-2 animate-spin" /> Sending...</>
           ) : (
-            <><Send className="h-5 w-5 mr-2" /> Send Reminder</>
+            <><SendPlaneLine className="h-5 w-5 mr-2" /> Send Reminder</>
           )}
         </Button>
       </div>
