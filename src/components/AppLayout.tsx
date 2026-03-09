@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, Plus, Settings } from "lucide-react";
+import { Home1Line, AddCircleLine, Settings3Line } from "@mingcute/react";
 import { cn } from "@/lib/utils";
 import { trigger } from "@/lib/haptics";
 import { PageTransition } from "@/components/PageTransition";
