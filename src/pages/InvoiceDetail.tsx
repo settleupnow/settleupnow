@@ -251,7 +251,7 @@ export default function InvoiceDetail() {
       <div className="space-y-3">
         {invoice.status !== "paid" && (
           <Button variant="success" className="w-full" size="lg" onClick={handleMarkPaid}>
-            <CheckCircle2 className="h-5 w-5 mr-2" /> Mark as Paid
+            <CheckCircleLine className="h-5 w-5 mr-2" /> Mark as Paid
           </Button>
         )}
         <Button
