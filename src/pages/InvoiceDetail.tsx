@@ -164,7 +164,7 @@ export default function InvoiceDetail() {
         </Button>
         <h1 className="text-2xl font-bold text-foreground flex-1">Invoice Detail</h1>
         <Button variant="ghost" size="icon" onClick={() => { trigger("light"); setEditing(true); }}>
-          <Pencil className="h-4 w-4" />
+          <Edit2Line className="h-4 w-4" />
         </Button>
       </div>
 
