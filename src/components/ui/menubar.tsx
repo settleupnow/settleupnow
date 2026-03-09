@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as MenubarPrimitive from "@radix-ui/react-menubar";
-import { Check, ChevronRight, Circle } from "lucide-react";
+import { CheckLine, RightSmallLine, CircleDashLine } from "@mingcute/react";
 
 import { cn } from "@/lib/utils";
 

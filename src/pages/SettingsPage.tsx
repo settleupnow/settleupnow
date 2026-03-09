@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Loader2, LogOut } from "lucide-react";
+import { ArrowLeftLine, Loading3Line, ExitLine } from "@mingcute/react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { trigger } from "@/lib/haptics";

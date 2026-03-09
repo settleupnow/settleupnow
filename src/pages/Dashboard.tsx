@@ -4,7 +4,7 @@ import { getInvoices } from "@/lib/store";
 import { Invoice } from "@/lib/types";
 import { formatCurrency } from "@/lib/format";
 import { StatusChip } from "@/components/StatusChip";
-import { Plus, FileText, Loader2 } from "lucide-react";
+import { AddCircleLine, FileLine, Loading3Line } from "@mingcute/react";
 import { Button } from "@/components/ui/button";
 import { trigger } from "@/lib/haptics";
 

@@ -6,7 +6,7 @@ import { formatCurrency, daysOverdue } from "@/lib/format";
 import { generateInvoicePdfBlob } from "@/lib/pdf";
 import { StatusChip } from "@/components/StatusChip";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Send, CheckCircle2, Clock, Pencil, Loader2, FileText } from "lucide-react";
+import { ArrowLeftLine, SendPlaneLine, CheckCircleLine, TimeLine, Edit2Line, Loading3Line, FileLine } from "@mingcute/react";
 import { toast } from "sonner";
 import { InvoiceEditForm } from "@/components/InvoiceEditForm";
 import { trigger } from "@/lib/haptics";
