@@ -54,7 +54,7 @@ export default function Dashboard() {
         <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
         <Button asChild size="sm" onClick={() => trigger("light")}>
           <Link to="/add">
-            <Plus className="h-4 w-4 mr-1" /> New Invoice
+            <AddCircleLine className="h-4 w-4 mr-1" /> New Invoice
           </Link>
         </Button>
       </div>
