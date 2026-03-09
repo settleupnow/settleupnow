@@ -73,7 +73,7 @@ export default function SettingsPage() {
         <p className="text-sm font-medium text-foreground">Business Profile</p>
         {loadingProfile ? (
           <div className="flex justify-center py-4">
-            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            <Loading3Line className="h-5 w-5 animate-spin text-muted-foreground" />
           </div>
         ) : (
           <div className="stagger-children space-y-4">
