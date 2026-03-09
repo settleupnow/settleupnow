@@ -11,7 +11,7 @@ import InvoiceDetail from "./pages/InvoiceDetail";
 import SettingsPage from "./pages/SettingsPage";
 import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
-import { Loader2 } from "lucide-react";
+import { Loading3Line } from "@mingcute/react";
 
 const queryClient = new QueryClient();
 
