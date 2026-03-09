@@ -261,7 +261,7 @@ export default function InvoiceDetail() {
           disabled={sendingInvoice}
         >
           {sendingInvoice ? (
-            <><Loader2 className="h-5 w-5 mr-2 animate-spin" /> Sending Invoice...</>
+            <><Loading3Line className="h-5 w-5 mr-2 animate-spin" /> Sending Invoice...</>
           ) : (
             <><FileText className="h-5 w-5 mr-2" /> Send Invoice</>
           )}
