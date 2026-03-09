@@ -263,7 +263,7 @@ export default function InvoiceDetail() {
           {sendingInvoice ? (
             <><Loading3Line className="h-5 w-5 mr-2 animate-spin" /> Sending Invoice...</>
           ) : (
-            <><FileText className="h-5 w-5 mr-2" /> Send Invoice</>
+            <><FileLine className="h-5 w-5 mr-2" /> Send Invoice</>
           )}
         </Button>
         <Button
