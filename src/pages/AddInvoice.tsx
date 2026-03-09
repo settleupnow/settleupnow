@@ -13,6 +13,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
+import { trigger } from "@/lib/haptics";
 
 interface LineItemDraft {
   description: string;
@@ -47,11 +48,13 @@ export default function AddInvoice() {
   }
 
   function addLineItemRow() {
+    trigger("light");
     setLineItems([...lineItems, { description: "", quantity: 1, unit_price: 0 }]);
   }
 
   function removeLineItem(index: number) {
     if (lineItems.length <= 1) return;
+    trigger("light");
     setLineItems(lineItems.filter((_, i) => i !== index));
   }
 
@@ -62,6 +65,7 @@ export default function AddInvoice() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!clientName || !clientEmail || !dueDate || lineItems.some(li => !li.description || li.unit_price <= 0)) {
+      trigger("error");
       toast.error("Please fill in all required fields and line items.");
       return;
     }
@@ -103,9 +107,11 @@ export default function AddInvoice() {
       }));
       await addLineItems(items);
 
+      trigger("success");
       toast.success("Invoice created!");
       navigate("/");
     } catch {
+      trigger("error");
       toast.error("Failed to create invoice.");
     } finally {
       setSubmitting(false);
@@ -121,7 +127,7 @@ export default function AddInvoice() {
         <h1 className="text-2xl font-bold text-foreground">New Invoice</h1>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-5 stagger-children">
         <div className="space-y-2">
           <Label>Invoice Number</Label>
           <Input value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} />

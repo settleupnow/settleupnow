@@ -2,6 +2,8 @@ import { ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { LayoutDashboard, Plus, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { trigger } from "@/lib/haptics";
+import { PageTransition } from "@/components/PageTransition";
 
 const navItems = [
   { to: "/", icon: LayoutDashboard, label: "Dashboard" },
@@ -23,7 +25,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
       </header>
 
       <main className="flex-1 container max-w-2xl mx-auto px-4 py-6 pb-24">
-        {children}
+        <PageTransition>{children}</PageTransition>
       </main>
 
       <nav className="fixed bottom-0 inset-x-0 z-40 border-t bg-card/95 backdrop-blur-md">
@@ -34,6 +36,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
               <Link
                 key={to}
                 to={to}
+                onClick={() => trigger("light")}
                 className={cn(
                   "flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-lg text-xs font-medium transition-colors",
                   active ? "text-primary" : "text-muted-foreground hover:text-foreground"

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Send, CheckCircle2, Clock, Pencil, Loader2, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { InvoiceEditForm } from "@/components/InvoiceEditForm";
+import { trigger } from "@/lib/haptics";
 
 export default function InvoiceDetail() {
   const { id } = useParams<{ id: string }>();
@@ -57,12 +58,14 @@ export default function InvoiceDetail() {
   }
 
   async function handleMarkPaid() {
+    trigger("success");
     await updateInvoice(id!, { status: "paid", paid_at: new Date().toISOString() });
     toast.success("Invoice marked as paid!");
     await refreshInvoice();
   }
 
   async function handleSendReminder() {
+    trigger("warning");
     setSending(true);
     try {
       const res = await fetch(
@@ -78,9 +81,11 @@ export default function InvoiceDetail() {
       );
       const result = await res.json();
       if (!res.ok) throw new Error(result.error || "Failed to send reminder");
+      trigger("success");
       toast.success("Reminder sent!");
       await refreshInvoice();
     } catch {
+      trigger("error");
       toast.error("Failed to send reminder");
     } finally {
       setSending(false);
@@ -88,9 +93,9 @@ export default function InvoiceDetail() {
   }
 
   async function handleSendInvoice() {
+    trigger("light");
     setSendingInvoice(true);
     try {
-      // Fetch fresh line items from DB to ensure PDF has correct data
       const freshLineItems = await getLineItems(id!);
       const pdfBlob = generateInvoicePdfBlob(invoice!, freshLineItems, profile);
       const reader = new FileReader();
@@ -121,8 +126,10 @@ export default function InvoiceDetail() {
       );
       const result = await res.json();
       if (!res.ok) throw new Error(result.error || "Failed to send invoice");
+      trigger("success");
       toast.success("Invoice sent!");
     } catch {
+      trigger("error");
       toast.error("Failed to send invoice");
     } finally {
       setSendingInvoice(false);
@@ -132,6 +139,7 @@ export default function InvoiceDetail() {
   async function handleSaveEdit(editData: Partial<Invoice>) {
     await updateInvoice(id!, editData);
     setEditing(false);
+    trigger("success");
     toast.success("Invoice updated!");
     await refreshInvoice();
   }
@@ -155,7 +163,7 @@ export default function InvoiceDetail() {
           <Link to="/"><ArrowLeft className="h-5 w-5" /></Link>
         </Button>
         <h1 className="text-2xl font-bold text-foreground flex-1">Invoice Detail</h1>
-        <Button variant="ghost" size="icon" onClick={() => setEditing(true)}>
+        <Button variant="ghost" size="icon" onClick={() => { trigger("light"); setEditing(true); }}>
           <Pencil className="h-4 w-4" />
         </Button>
       </div>
@@ -174,7 +182,7 @@ export default function InvoiceDetail() {
 
         <div className="h-px bg-border" />
 
-        <div className="grid grid-cols-2 gap-4 text-sm">
+        <div className="grid grid-cols-2 gap-4 text-sm stagger-children">
           {invoice.invoice_number && (
             <div>
               <p className="text-muted-foreground">Invoice #</p>
@@ -210,7 +218,7 @@ export default function InvoiceDetail() {
         {lineItems.length > 0 && (
           <>
             <div className="h-px bg-border" />
-            <div className="space-y-2">
+            <div className="space-y-2 stagger-children">
               <p className="text-sm font-medium text-muted-foreground">Line Items</p>
               {lineItems.map((li, i) => (
                 <div key={li.id || i} className="flex justify-between text-sm">
