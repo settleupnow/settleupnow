@@ -9,6 +9,7 @@ import Dashboard from "./pages/Dashboard";
 import AddInvoice from "./pages/AddInvoice";
 import InvoiceDetail from "./pages/InvoiceDetail";
 import SettingsPage from "./pages/SettingsPage";
+import AdminDashboard from "./pages/AdminDashboard";
 import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
 import { Loading3Line } from "@mingcute/react";
