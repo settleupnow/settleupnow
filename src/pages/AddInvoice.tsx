@@ -154,7 +154,7 @@ export default function AddInvoice() {
                 <span className="text-xs font-medium text-muted-foreground">Item {i + 1}</span>
                 {lineItems.length > 1 && (
                   <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => removeLineItem(i)}>
-                    <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                    <Delete2Line className="h-3.5 w-3.5 text-destructive" />
                   </Button>
                 )}
               </div>
