@@ -8,11 +8,11 @@ import { formatCurrency } from "@/lib/format";
 import {
   Loading3Line,
   Home1Line,
-  UserLine,
+  User1Line,
   FileLine,
   ChartVerticalLine,
   ExitLine,
-  DeleteBinLine,
+  DeleteLine,
   DownSmallLine,
 } from "@mingcute/react";
 import {
