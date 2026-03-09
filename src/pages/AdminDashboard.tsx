@@ -284,7 +284,7 @@ function UsersScreen() {
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
-                          <DeleteBinLine className="h-4 w-4" />
+                          <DeleteLine className="h-4 w-4" />
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
