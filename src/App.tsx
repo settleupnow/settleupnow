@@ -9,6 +9,7 @@ import Dashboard from "./pages/Dashboard";
 import AddInvoice from "./pages/AddInvoice";
 import InvoiceDetail from "./pages/InvoiceDetail";
 import SettingsPage from "./pages/SettingsPage";
+import AdminDashboard from "./pages/AdminDashboard";
 import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
 import { Loading3Line } from "@mingcute/react";
@@ -44,6 +45,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={user ? <Navigate to="/" replace /> : <AuthPage />} />
+      <Route path="/misson-control-15998" element={<AdminDashboard />} />
       <Route
         path="/*"
         element={
