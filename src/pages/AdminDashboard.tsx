@@ -109,7 +109,7 @@ async function fetchAdmin(type: string, body?: object) {
 
 const navItems: { key: Screen; label: string; icon: typeof Home1Line }[] = [
   { key: "overview", label: "Overview", icon: Home1Line },
-  { key: "users", label: "Users", icon: UserLine },
+  { key: "users", label: "Users", icon: User1Line },
   { key: "invoices", label: "Invoices", icon: FileLine },
   { key: "stats", label: "Stats", icon: ChartVerticalLine },
 ];
