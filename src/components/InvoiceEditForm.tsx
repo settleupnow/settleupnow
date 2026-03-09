@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeftLine } from "@mingcute/react";
 
 interface Props {
   invoice: Invoice;
@@ -31,7 +31,7 @@ export function InvoiceEditForm({ invoice, onSave, onCancel }: Props) {
     <div className="space-y-6">
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" onClick={onCancel}>
-          <ArrowLeft className="h-5 w-5" />
+          <ArrowLeftLine className="h-5 w-5" />
         </Button>
         <h1 className="text-2xl font-bold text-foreground">Edit Invoice</h1>
       </div>

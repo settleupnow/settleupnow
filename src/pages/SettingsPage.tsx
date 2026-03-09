@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Loader2, LogOut } from "lucide-react";
+import { ArrowLeftLine, Loading3Line, ExitLine } from "@mingcute/react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { trigger } from "@/lib/haptics";
@@ -63,7 +63,7 @@ export default function SettingsPage() {
     <div className="space-y-6">
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" asChild>
-          <Link to="/"><ArrowLeft className="h-5 w-5" /></Link>
+          <Link to="/"><ArrowLeftLine className="h-5 w-5" /></Link>
         </Button>
         <h1 className="text-2xl font-bold text-foreground">Settings</h1>
       </div>
@@ -73,7 +73,7 @@ export default function SettingsPage() {
         <p className="text-sm font-medium text-foreground">Business Profile</p>
         {loadingProfile ? (
           <div className="flex justify-center py-4">
-            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            <Loading3Line className="h-5 w-5 animate-spin text-muted-foreground" />
           </div>
         ) : (
           <div className="stagger-children space-y-4">
@@ -164,7 +164,7 @@ export default function SettingsPage() {
           size="lg"
           onClick={() => { trigger("warning"); signOut(); }}
         >
-          <LogOut className="h-4 w-4 mr-2" /> Log Out
+          <ExitLine className="h-4 w-4 mr-2" /> Log Out
         </Button>
       </div>
     </div>

@@ -4,7 +4,7 @@ import { getInvoices } from "@/lib/store";
 import { Invoice } from "@/lib/types";
 import { formatCurrency } from "@/lib/format";
 import { StatusChip } from "@/components/StatusChip";
-import { Plus, FileText, Loader2 } from "lucide-react";
+import { AddCircleLine, FileLine, Loading3Line } from "@mingcute/react";
 import { Button } from "@/components/ui/button";
 import { trigger } from "@/lib/haptics";
 
@@ -43,7 +43,7 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        <Loading3Line className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -54,7 +54,7 @@ export default function Dashboard() {
         <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
         <Button asChild size="sm" onClick={() => trigger("light")}>
           <Link to="/add">
-            <Plus className="h-4 w-4 mr-1" /> New Invoice
+            <AddCircleLine className="h-4 w-4 mr-1" /> New Invoice
           </Link>
         </Button>
       </div>
@@ -78,7 +78,7 @@ export default function Dashboard() {
       {/* Invoice List */}
       {sorted.length === 0 ? (
         <div className="text-center py-16 space-y-3">
-          <FileText className="h-12 w-12 mx-auto text-muted-foreground/40" />
+          <FileLine className="h-12 w-12 mx-auto text-muted-foreground/40" />
           <p className="text-muted-foreground">No invoices yet. Create your first one!</p>
           <Button asChild variant="outline">
             <Link to="/add">Add Invoice</Link>

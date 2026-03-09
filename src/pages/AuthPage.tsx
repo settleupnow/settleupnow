@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loading3Line } from "@mingcute/react";
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -75,7 +75,7 @@ export default function AuthPage() {
           </div>
           <Button type="submit" className="w-full" size="lg" disabled={loading}>
             {loading ? (
-              <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> {isLogin ? "Signing in..." : "Creating account..."}</>
+              <><Loading3Line className="h-4 w-4 mr-2 animate-spin" /> {isLogin ? "Signing in..." : "Creating account..."}</>
             ) : (
               isLogin ? "Sign In" : "Sign Up"
             )}

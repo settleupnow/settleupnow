@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, ArrowLeft, Plus, Trash2 } from "lucide-react";
+import { CalendarLine, ArrowLeftLine, AddCircleLine, Delete2Line } from "@mingcute/react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -122,7 +122,7 @@ export default function AddInvoice() {
     <div className="space-y-6">
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" asChild>
-          <Link to="/"><ArrowLeft className="h-5 w-5" /></Link>
+          <Link to="/"><ArrowLeftLine className="h-5 w-5" /></Link>
         </Button>
         <h1 className="text-2xl font-bold text-foreground">New Invoice</h1>
       </div>
@@ -154,7 +154,7 @@ export default function AddInvoice() {
                 <span className="text-xs font-medium text-muted-foreground">Item {i + 1}</span>
                 {lineItems.length > 1 && (
                   <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => removeLineItem(i)}>
-                    <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                    <Delete2Line className="h-3.5 w-3.5 text-destructive" />
                   </Button>
                 )}
               </div>
@@ -205,7 +205,7 @@ export default function AddInvoice() {
             </div>
           ))}
           <Button type="button" variant="outline" size="sm" onClick={addLineItemRow} className="w-full">
-            <Plus className="h-4 w-4 mr-1" /> Add Line Item
+            <AddCircleLine className="h-4 w-4 mr-1" /> Add Line Item
           </Button>
         </div>
 
@@ -252,7 +252,7 @@ export default function AddInvoice() {
                 variant="outline"
                 className={cn("w-full justify-start text-left font-normal", !dueDate && "text-muted-foreground")}
               >
-                <CalendarIcon className="mr-2 h-4 w-4" />
+                <CalendarLine className="mr-2 h-4 w-4" />
                 {dueDate ? format(dueDate, "PPP") : "Pick a date"}
               </Button>
             </PopoverTrigger>

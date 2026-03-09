@@ -6,7 +6,7 @@ import { formatCurrency, daysOverdue } from "@/lib/format";
 import { generateInvoicePdfBlob } from "@/lib/pdf";
 import { StatusChip } from "@/components/StatusChip";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Send, CheckCircle2, Clock, Pencil, Loader2, FileText } from "lucide-react";
+import { ArrowLeftLine, SendPlaneLine, CheckCircleLine, TimeLine, Edit2Line, Loading3Line, FileLine } from "@mingcute/react";
 import { toast } from "sonner";
 import { InvoiceEditForm } from "@/components/InvoiceEditForm";
 import { trigger } from "@/lib/haptics";
@@ -43,7 +43,7 @@ export default function InvoiceDetail() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        <Loading3Line className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -160,11 +160,11 @@ export default function InvoiceDetail() {
     <div className="space-y-6">
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" asChild>
-          <Link to="/"><ArrowLeft className="h-5 w-5" /></Link>
+          <Link to="/"><ArrowLeftLine className="h-5 w-5" /></Link>
         </Button>
         <h1 className="text-2xl font-bold text-foreground flex-1">Invoice Detail</h1>
         <Button variant="ghost" size="icon" onClick={() => { trigger("light"); setEditing(true); }}>
-          <Pencil className="h-4 w-4" />
+          <Edit2Line className="h-4 w-4" />
         </Button>
       </div>
 
@@ -251,7 +251,7 @@ export default function InvoiceDetail() {
       <div className="space-y-3">
         {invoice.status !== "paid" && (
           <Button variant="success" className="w-full" size="lg" onClick={handleMarkPaid}>
-            <CheckCircle2 className="h-5 w-5 mr-2" /> Mark as Paid
+            <CheckCircleLine className="h-5 w-5 mr-2" /> Mark as Paid
           </Button>
         )}
         <Button
@@ -261,9 +261,9 @@ export default function InvoiceDetail() {
           disabled={sendingInvoice}
         >
           {sendingInvoice ? (
-            <><Loader2 className="h-5 w-5 mr-2 animate-spin" /> Sending Invoice...</>
+            <><Loading3Line className="h-5 w-5 mr-2 animate-spin" /> Sending Invoice...</>
           ) : (
-            <><FileText className="h-5 w-5 mr-2" /> Send Invoice</>
+            <><FileLine className="h-5 w-5 mr-2" /> Send Invoice</>
           )}
         </Button>
         <Button
@@ -274,9 +274,9 @@ export default function InvoiceDetail() {
           disabled={invoice.status === "paid" || sending}
         >
           {sending ? (
-            <><Loader2 className="h-5 w-5 mr-2 animate-spin" /> Sending...</>
+            <><Loading3Line className="h-5 w-5 mr-2 animate-spin" /> Sending...</>
           ) : (
-            <><Send className="h-5 w-5 mr-2" /> Send Reminder</>
+            <><SendPlaneLine className="h-5 w-5 mr-2" /> Send Reminder</>
           )}
         </Button>
       </div>
@@ -284,7 +284,7 @@ export default function InvoiceDetail() {
       {/* Reminder History */}
       <div className="rounded-xl border bg-card p-5 space-y-2">
         <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-          <Clock className="h-4 w-4 text-muted-foreground" />
+          <TimeLine className="h-4 w-4 text-muted-foreground" />
           Reminder History
         </div>
         <p className="text-sm text-muted-foreground">
