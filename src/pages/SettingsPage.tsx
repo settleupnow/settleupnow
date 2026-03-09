@@ -63,7 +63,7 @@ export default function SettingsPage() {
     <div className="space-y-6">
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" asChild>
-          <Link to="/"><ArrowLeft className="h-5 w-5" /></Link>
+          <Link to="/"><ArrowLeftLine className="h-5 w-5" /></Link>
         </Button>
         <h1 className="text-2xl font-bold text-foreground">Settings</h1>
       </div>
