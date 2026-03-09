@@ -284,7 +284,7 @@ export default function InvoiceDetail() {
       {/* Reminder History */}
       <div className="rounded-xl border bg-card p-5 space-y-2">
         <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-          <Clock className="h-4 w-4 text-muted-foreground" />
+          <TimeLine className="h-4 w-4 text-muted-foreground" />
           Reminder History
         </div>
         <p className="text-sm text-muted-foreground">

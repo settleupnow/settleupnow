@@ -252,7 +252,7 @@ export default function AddInvoice() {
                 variant="outline"
                 className={cn("w-full justify-start text-left font-normal", !dueDate && "text-muted-foreground")}
               >
-                <CalendarIcon className="mr-2 h-4 w-4" />
+                <CalendarLine className="mr-2 h-4 w-4" />
                 {dueDate ? format(dueDate, "PPP") : "Pick a date"}
               </Button>
             </PopoverTrigger>

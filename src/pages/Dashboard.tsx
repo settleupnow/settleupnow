@@ -78,7 +78,7 @@ export default function Dashboard() {
       {/* Invoice List */}
       {sorted.length === 0 ? (
         <div className="text-center py-16 space-y-3">
-          <FileText className="h-12 w-12 mx-auto text-muted-foreground/40" />
+          <FileLine className="h-12 w-12 mx-auto text-muted-foreground/40" />
           <p className="text-muted-foreground">No invoices yet. Create your first one!</p>
           <Button asChild variant="outline">
             <Link to="/add">Add Invoice</Link>

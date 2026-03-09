@@ -164,7 +164,7 @@ export default function SettingsPage() {
           size="lg"
           onClick={() => { trigger("warning"); signOut(); }}
         >
-          <LogOut className="h-4 w-4 mr-2" /> Log Out
+          <ExitLine className="h-4 w-4 mr-2" /> Log Out
         </Button>
       </div>
     </div>
