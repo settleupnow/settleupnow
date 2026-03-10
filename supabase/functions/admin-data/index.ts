@@ -38,7 +38,7 @@ Deno.serve(async (req) => {
 
     const userMetadata = claimsData.claims.user_metadata as Record<string, unknown> | undefined;
 
-    const isAdmin = claimsData.user.user_metadata?.is_admin === true;
+    const isAdmin = userMetadata?.is_admin === true;
     if (!isAdmin) {
       return new Response(JSON.stringify({ error: "Forbidden" }), {
         status: 403,
