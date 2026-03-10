@@ -27,15 +27,18 @@ Deno.serve(async (req) => {
       { global: { headers: { Authorization: authHeader } } }
     );
 
-    const { data: claimsData, error: claimsError } = await anonClient.auth.getUser();
-    if (claimsError || !claimsData?.user) {
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsError } = await anonClient.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const isAdmin = claimsData.user.user_metadata?.is_admin === true;
+    const userMetadata = claimsData.claims.user_metadata as Record<string, unknown> | undefined;
+
+    const isAdmin = userMetadata?.is_admin === true;
     if (!isAdmin) {
       return new Response(JSON.stringify({ error: "Forbidden" }), {
         status: 403,
