@@ -46,7 +46,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={user ? <Navigate to="/" replace /> : <AuthPage />} />
-      <Route path="/misson-control-15998" element={<AdminDashboard />} />
+      <Route path="/misson-control-15998" element={<ErrorBoundary><AdminDashboard /></ErrorBoundary>} />
       <Route
         path="/*"
         element={
