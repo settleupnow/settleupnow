@@ -21,22 +21,23 @@ Deno.serve(async (req) => {
       });
     }
 
-    const anonClient = createClient(
+    const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_ANON_KEY")!,
       { global: { headers: { Authorization: authHeader } } }
     );
 
     const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsError } = await anonClient.auth.getClaims(token);
-    if (claimsError || !claimsData?.claims) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+    if (userError || !user) {
+      console.error("JWT validation failed:", userError);
+      return new Response(JSON.stringify({ error: "Invalid authentication token" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const userMetadata = claimsData.claims.user_metadata as Record<string, unknown> | undefined;
+    const isAdmin = user.user_metadata?.is_admin === true;
 
     const isAdmin = userMetadata?.is_admin === true;
     if (!isAdmin) {
