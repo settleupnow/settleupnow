@@ -119,18 +119,27 @@ export default function AdminDashboard() {
   const [searchParams, setSearchParams] = useSearchParams();
   const screen = (searchParams.get("tab") as Screen) || "overview";
   const setScreen = (s: Screen) => setSearchParams({ tab: s });
+  const [authError, setAuthError] = useState<string | null>(null);
 
-  // Access check
+  useEffect(() => {
+    if (authLoading) return;
+    console.log("Full User Object:", user);
+    console.log("User Metadata:", user?.user_metadata);
+    console.log("is_admin value:", user?.user_metadata?.is_admin);
+  }, [user, authLoading]);
+
+  // Loading state
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loading3Line className="h-6 w-6 animate-spin text-muted-foreground" />
+        <p className="text-muted-foreground">Loading...</p>
       </div>
     );
   }
 
-  const isAdmin = user?.user_metadata?.is_admin === true;
-  if (!user || !isAdmin) {
+  // Not logged in or not admin
+  if (!user || user.user_metadata?.is_admin !== true) {
+    console.log("Not admin, redirecting");
     return <Navigate to="/" replace />;
   }
 

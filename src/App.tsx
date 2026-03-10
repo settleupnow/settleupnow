@@ -12,6 +12,7 @@ import SettingsPage from "./pages/SettingsPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Loading3Line } from "@mingcute/react";
 
 const queryClient = new QueryClient();
@@ -45,7 +46,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={user ? <Navigate to="/" replace /> : <AuthPage />} />
-      <Route path="/misson-control-15998" element={<AdminDashboard />} />
+      <Route path="/misson-control-15998" element={<ErrorBoundary><AdminDashboard /></ErrorBoundary>} />
       <Route
         path="/*"
         element={
