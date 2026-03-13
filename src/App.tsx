@@ -11,6 +11,7 @@ import InvoiceDetail from "./pages/InvoiceDetail";
 import SettingsPage from "./pages/SettingsPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import AuthPage from "./pages/AuthPage";
+import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Loading3Line } from "@mingcute/react";
