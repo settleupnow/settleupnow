@@ -62,6 +62,51 @@ export default function AuthPage() {
     }
   }
 
+  if (isForgot) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background px-4">
+        <div className="w-full max-w-sm space-y-6">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-foreground">
+              Settle<span className="text-primary">Up</span>
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">Reset your password</p>
+          </div>
+
+          <form onSubmit={handleForgotPassword} className="space-y-4">
+            <div className="space-y-2">
+              <Label>Email</Label>
+              <Input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                autoComplete="email"
+              />
+            </div>
+            <Button type="submit" className="w-full" size="lg" disabled={loading}>
+              {loading ? (
+                <><Loading3Line className="h-4 w-4 mr-2 animate-spin" /> Sending...</>
+              ) : (
+                "Send reset link"
+              )}
+            </Button>
+          </form>
+
+          <p className="text-center text-sm text-muted-foreground">
+            <button
+              type="button"
+              onClick={() => setIsForgot(false)}
+              className="text-primary font-medium hover:underline"
+            >
+              Back to Sign In
+            </button>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="w-full max-w-sm space-y-6">
@@ -95,6 +140,17 @@ export default function AuthPage() {
               autoComplete={isLogin ? "current-password" : "new-password"}
             />
           </div>
+          {isLogin && (
+            <div className="text-right">
+              <button
+                type="button"
+                onClick={() => setIsForgot(true)}
+                className="text-sm text-muted-foreground hover:text-primary hover:underline"
+              >
+                Forgot password?
+              </button>
+            </div>
+          )}
           <Button type="submit" className="w-full" size="lg" disabled={loading}>
             {loading ? (
               <><Loading3Line className="h-4 w-4 mr-2 animate-spin" /> {isLogin ? "Signing in..." : "Creating account..."}</>
