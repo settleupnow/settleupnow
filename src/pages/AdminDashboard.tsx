@@ -75,8 +75,14 @@ interface StatsData {
 }
 
 async function fetchAdmin(type: string, body?: object) {
-  const { data: sessionData } = await supabase.auth.getSession();
-  const token = sessionData?.session?.access_token;
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  const token = session?.access_token;
+
+  if (!token) {
+    throw new Error("No active session token found.");
+  }
 
   const url = new URL(
     `${import.meta.env.VITE_SUPABASE_URL || "https://ijexmbrtbbqbxvusiiew.supabase.co"}/functions/v1/admin-data`
@@ -90,7 +96,6 @@ async function fetchAdmin(type: string, body?: object) {
     method: body ? "POST" : "GET",
     headers: {
       Authorization: `Bearer ${token}`,
-      apikey: SUPABASE_ANON_KEY,
       "Content-Type": "application/json",
     },
     ...(body
