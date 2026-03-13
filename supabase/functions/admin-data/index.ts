@@ -28,7 +28,11 @@ Deno.serve(async (req) => {
     );
 
     const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser(token);
+
     if (userError || !user) {
       console.error("JWT validation failed:", userError);
       return new Response(JSON.stringify({ error: "Invalid authentication token" }), {
@@ -38,8 +42,6 @@ Deno.serve(async (req) => {
     }
 
     const isAdmin = user.user_metadata?.is_admin === true;
-
-    const isAdmin = userMetadata?.is_admin === true;
     if (!isAdmin) {
       return new Response(JSON.stringify({ error: "Forbidden" }), {
         status: 403,
