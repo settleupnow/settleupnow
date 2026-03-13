@@ -88,9 +88,7 @@ async function fetchAdmin(type: string, body?: object) {
     `${import.meta.env.VITE_SUPABASE_URL || "https://ijexmbrtbbqbxvusiiew.supabase.co"}/functions/v1/admin-data`
   );
 
-  if (!body) {
-    url.searchParams.set("type", type);
-  }
+  url.searchParams.set("type", type);
 
   const res = await fetch(url.toString(), {
     method: body ? "POST" : "GET",
