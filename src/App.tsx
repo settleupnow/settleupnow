@@ -11,6 +11,7 @@ import InvoiceDetail from "./pages/InvoiceDetail";
 import SettingsPage from "./pages/SettingsPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import AuthPage from "./pages/AuthPage";
+import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Loading3Line } from "@mingcute/react";
@@ -46,6 +47,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={user ? <Navigate to="/" replace /> : <AuthPage />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/misson-control-15998" element={<ErrorBoundary><AdminDashboard /></ErrorBoundary>} />
       <Route
         path="/*"
