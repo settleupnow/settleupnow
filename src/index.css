@@ -2,56 +2,70 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
-
 @layer base {
   :root {
-    --background: 0 0% 99%;
-    --foreground: 0 0% 10%;
+    /* ── Brand Colour Tokens ── */
+    --color-ink: 0 0% 5%;           /* #0D0D0D */
+    --color-paper: 36 33% 93%;      /* #F5F0E8 */
+    --color-white: 0 0% 100%;       /* #FEFEFE */
+    --color-mid: 20 5% 39%;         /* #6B6560 */
+    --color-rule: 30 14% 81%;       /* #D8D0C4 */
 
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 10%;
+    --color-naira: 147 62% 26%;     /* #1A6B3C */
+    --color-naira-light: 147 55% 36%; /* #2A8F52 */
+    --color-naira-pale: 145 47% 93%; /* #E8F5EE */
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 10%;
+    --color-amber: 37 80% 52%;      /* #E8A020 */
+    --color-amber-pale: 40 90% 93%; /* #FDF3DC */
 
-    --primary: 200 100% 48%;
+    --color-clay: 17 55% 50%;       /* #C4613A */
+    --color-clay-pale: 17 60% 95%;  /* #FAF0EB */
+
+    /* ── Semantic mappings for shadcn/tailwind ── */
+    --background: var(--color-paper);
+    --foreground: var(--color-ink);
+
+    --card: var(--color-white);
+    --card-foreground: var(--color-ink);
+
+    --popover: var(--color-white);
+    --popover-foreground: var(--color-ink);
+
+    --primary: var(--color-naira);
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 15% 95%;
-    --secondary-foreground: 0 0% 10%;
+    --secondary: var(--color-paper);
+    --secondary-foreground: var(--color-ink);
 
-    --muted: 220 15% 95%;
-    --muted-foreground: 220 10% 46%;
+    --muted: var(--color-paper);
+    --muted-foreground: var(--color-mid);
 
-    --accent: 220 15% 93%;
-    --accent-foreground: 0 0% 10%;
+    --accent: var(--color-paper);
+    --accent-foreground: var(--color-ink);
 
-    --destructive: 0 72% 51%;
+    --destructive: var(--color-clay);
     --destructive-foreground: 0 0% 100%;
 
-    --success: 145 63% 42%;
+    --success: var(--color-naira);
     --success-foreground: 0 0% 100%;
 
-    --warning: 45 93% 47%;
-    --warning-foreground: 0 0% 10%;
+    --warning: var(--color-amber);
+    --warning-foreground: var(--color-ink);
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 200 100% 48%;
+    --border: var(--color-rule);
+    --input: var(--color-rule);
+    --ring: var(--color-naira);
 
-    --radius: 0.75rem;
+    --radius: 6px;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 0 0% 10%;
-    --sidebar-primary: 0 0% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 0 0% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 200 100% 48%;
+    --sidebar-background: var(--color-white);
+    --sidebar-foreground: var(--color-ink);
+    --sidebar-primary: var(--color-naira);
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: var(--color-naira-pale);
+    --sidebar-accent-foreground: var(--color-ink);
+    --sidebar-border: var(--color-rule);
+    --sidebar-ring: var(--color-naira);
   }
 }
 
@@ -67,7 +81,14 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground antialiased;
     font-family: 'Radio Canada Big', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    color: #3A3530;
     -webkit-overflow-scrolling: touch;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    color: hsl(var(--color-ink));
   }
 
   /* Staggered fade-in for cards, list items, form fields */
@@ -110,13 +131,103 @@ All colors MUST be HSL.
   button:active, [role="button"]:active {
     transform: scale(0.97);
   }
+}
 
-  /* Card hover lift */
-  .rounded-xl[class*="border"][class*="bg-card"] {
-    @apply transition-all duration-200;
+/* ── Typography utility classes ── */
+@layer utilities {
+  .type-display {
+    font-family: 'Radio Canada Big', sans-serif;
+    font-weight: 700;
+    font-size: clamp(40px, 6vw, 64px);
+    line-height: 1.0;
+    letter-spacing: -0.03em;
+    color: hsl(var(--color-ink));
   }
-  .rounded-xl[class*="border"][class*="bg-card"]:hover {
-    box-shadow: 0 4px 16px -4px hsl(var(--foreground) / 0.08);
-    transform: translateY(-1px);
+
+  .type-h1 {
+    font-family: 'Radio Canada Big', sans-serif;
+    font-weight: 700;
+    font-size: clamp(28px, 4vw, 40px);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: hsl(var(--color-ink));
+  }
+
+  .type-h2 {
+    font-family: 'Radio Canada Big', sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: hsl(var(--color-ink));
+  }
+
+  .type-h3 {
+    font-family: 'Radio Canada Big', sans-serif;
+    font-weight: 600;
+    font-size: 17px;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    color: hsl(var(--color-ink));
+  }
+
+  .type-body {
+    font-family: 'Radio Canada Big', sans-serif;
+    font-weight: 400;
+    font-size: 15px;
+    line-height: 1.7;
+    color: #3A3530;
+  }
+
+  .type-body-strong {
+    font-family: 'Radio Canada Big', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    line-height: 1.7;
+    color: hsl(var(--color-ink));
+  }
+
+  .type-body-small {
+    font-family: 'Radio Canada Big', sans-serif;
+    font-weight: 400;
+    font-size: 13px;
+    line-height: 1.6;
+    color: hsl(var(--color-mid));
+  }
+
+  .type-ui-label {
+    font-family: 'Radio Canada Big', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 1;
+    letter-spacing: 0.01em;
+  }
+
+  .type-section-label {
+    font-family: 'DM Mono', monospace;
+    font-weight: 400;
+    font-size: 11px;
+    line-height: 1;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: hsl(var(--color-mid));
+  }
+
+  .type-metadata {
+    font-family: 'DM Mono', monospace;
+    font-weight: 300;
+    font-size: 11px;
+    line-height: 1.5;
+    letter-spacing: 0.05em;
+    color: hsl(var(--color-mid));
+  }
+
+  .type-data {
+    font-family: 'DM Mono', monospace;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 1.4;
+    letter-spacing: 0.02em;
+    color: hsl(var(--color-ink));
   }
 }
