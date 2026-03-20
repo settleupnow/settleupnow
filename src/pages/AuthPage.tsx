@@ -67,10 +67,10 @@ export default function AuthPage() {
       <div className="min-h-screen flex items-center justify-center bg-background px-4">
         <div className="w-full max-w-sm space-y-6">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-foreground">
+            <h1 className="type-h1">
               Settle<span className="text-primary">Up</span>
             </h1>
-            <p className="text-sm text-muted-foreground mt-1">Reset your password</p>
+            <p className="type-body-small mt-1">Reset your password</p>
           </div>
 
           <form onSubmit={handleForgotPassword} className="space-y-4">
@@ -93,11 +93,11 @@ export default function AuthPage() {
             </Button>
           </form>
 
-          <p className="text-center text-sm text-muted-foreground">
+          <p className="text-center type-body-small">
             <button
               type="button"
               onClick={() => setIsForgot(false)}
-              className="text-primary font-medium hover:underline"
+              className="text-primary font-semibold hover:underline"
             >
               Back to Sign In
             </button>
@@ -111,10 +111,10 @@ export default function AuthPage() {
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-foreground">
+          <h1 className="type-h1">
             Settle<span className="text-primary">Up</span>
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="type-body-small mt-1">
             {isLogin ? "Sign in to your account" : "Create a new account"}
           </p>
         </div>
@@ -145,7 +145,7 @@ export default function AuthPage() {
               <button
                 type="button"
                 onClick={() => setIsForgot(true)}
-                className="text-sm text-muted-foreground hover:text-primary hover:underline"
+                className="type-body-small hover:text-primary hover:underline"
               >
                 Forgot password?
               </button>
@@ -160,12 +160,12 @@ export default function AuthPage() {
           </Button>
         </form>
 
-        <p className="text-center text-sm text-muted-foreground">
+        <p className="text-center type-body-small">
           {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
           <button
             type="button"
             onClick={() => setIsLogin(!isLogin)}
-            className="text-primary font-medium hover:underline"
+            className="text-primary font-semibold hover:underline"
           >
             {isLogin ? "Sign Up" : "Sign In"}
           </button>

@@ -24,8 +24,8 @@ export class ErrorBoundary extends React.Component<{ children: ReactNode }, Stat
       return (
         <div className="min-h-screen flex items-center justify-center bg-background p-6">
           <div className="text-center space-y-2">
-            <h2 className="text-lg font-bold text-destructive">Something went wrong</h2>
-            <p className="text-sm text-muted-foreground">{this.state.error?.message}</p>
+            <h2 className="type-h2 !text-clay">Something went wrong</h2>
+            <p className="type-body-small">{this.state.error?.message}</p>
           </div>
         </div>
       );

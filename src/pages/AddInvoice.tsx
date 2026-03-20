@@ -124,7 +124,7 @@ export default function AddInvoice() {
         <Button variant="ghost" size="icon" asChild>
           <Link to="/"><ArrowLeftLine className="h-5 w-5" /></Link>
         </Button>
-        <h1 className="text-2xl font-bold text-foreground">New Invoice</h1>
+        <h1 className="type-h1">New Invoice</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5 stagger-children">
@@ -151,7 +151,7 @@ export default function AddInvoice() {
           {lineItems.map((item, i) => (
             <div key={i} className="rounded-lg border bg-card p-3 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-muted-foreground">Item {i + 1}</span>
+                <span className="type-section-label">Item {i + 1}</span>
                 {lineItems.length > 1 && (
                   <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => removeLineItem(i)}>
                     <Delete2Line className="h-3.5 w-3.5 text-destructive" />
@@ -176,7 +176,7 @@ export default function AddInvoice() {
                     >
                       <span className="text-lg font-medium">−</span>
                     </Button>
-                    <span className="flex-1 text-center text-sm font-medium text-foreground">{item.quantity}</span>
+                    <span className="flex-1 text-center type-data">{item.quantity}</span>
                     <Button
                       type="button"
                       variant="outline"
@@ -199,7 +199,7 @@ export default function AddInvoice() {
                   />
                 </div>
               </div>
-              <p className="text-sm text-right font-medium text-foreground">
+              <p className="text-right type-data">
                 Amount: {currency} {(item.quantity * item.unit_price).toLocaleString()}
               </p>
             </div>
@@ -227,20 +227,20 @@ export default function AddInvoice() {
         </div>
 
         {/* Totals */}
-        <div className="rounded-lg border bg-card p-4 space-y-1 text-sm">
+        <div className="rounded-lg border bg-card p-4 space-y-1">
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Subtotal</span>
-            <span className="font-medium text-foreground">{currency} {subtotal.toLocaleString()}</span>
+            <span className="type-body-small">Subtotal</span>
+            <span className="type-data">{currency} {subtotal.toLocaleString()}</span>
           </div>
           {taxRate > 0 && (
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Tax ({taxRate}%)</span>
-              <span className="font-medium text-foreground">{currency} {taxAmount.toLocaleString()}</span>
+              <span className="type-body-small">Tax ({taxRate}%)</span>
+              <span className="type-data">{currency} {taxAmount.toLocaleString()}</span>
             </div>
           )}
           <div className="flex justify-between pt-1 border-t border-border">
-            <span className="font-semibold text-foreground">Total</span>
-            <span className="font-bold text-foreground">{currency} {total.toLocaleString()}</span>
+            <span className="type-body-strong">Total</span>
+            <span className="type-data font-bold">{currency} {total.toLocaleString()}</span>
           </div>
         </div>
 

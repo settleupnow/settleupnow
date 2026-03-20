@@ -51,7 +51,7 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+        <h1 className="type-h1">Dashboard</h1>
         <Button asChild size="sm" onClick={() => trigger("light")}>
           <Link to="/add">
             <AddCircleLine className="h-4 w-4 mr-1" /> New Invoice
@@ -61,17 +61,17 @@ export default function Dashboard() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 stagger-children">
-        <div className="rounded-xl border bg-card p-4">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Total Outstanding</p>
-          <p className="text-2xl font-bold mt-1 text-foreground">{formatCurrency(totalOutstanding, "NGN")}</p>
+        <div className="rounded-lg border bg-card p-4">
+          <p className="type-section-label">Total Outstanding</p>
+          <p className="type-data text-xl mt-1">{formatCurrency(totalOutstanding, "NGN")}</p>
         </div>
-        <div className="rounded-xl border bg-card p-4">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Overdue</p>
-          <p className="text-2xl font-bold mt-1 text-destructive">{overdueCount}</p>
+        <div className="rounded-lg border bg-card p-4">
+          <p className="type-section-label">Overdue</p>
+          <p className="type-data text-xl mt-1 !text-clay">{overdueCount}</p>
         </div>
-        <div className="rounded-xl border bg-card p-4">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Paid This Month</p>
-          <p className="text-2xl font-bold mt-1 text-success">{formatCurrency(paidThisMonth, "NGN")}</p>
+        <div className="rounded-lg border bg-card p-4">
+          <p className="type-section-label">Paid This Month</p>
+          <p className="type-data text-xl mt-1 !text-naira">{formatCurrency(paidThisMonth, "NGN")}</p>
         </div>
       </div>
 
@@ -79,7 +79,7 @@ export default function Dashboard() {
       {sorted.length === 0 ? (
         <div className="text-center py-16 space-y-3">
           <FileLine className="h-12 w-12 mx-auto text-muted-foreground/40" />
-          <p className="text-muted-foreground">No invoices yet. Create your first one!</p>
+          <p className="type-body-small">No invoices yet. Create your first one!</p>
           <Button asChild variant="outline">
             <Link to="/add">Add Invoice</Link>
           </Button>
@@ -91,16 +91,16 @@ export default function Dashboard() {
               key={inv.id}
               to={`/invoice/${inv.id}`}
               onClick={() => trigger("light")}
-              className="flex items-center justify-between p-4 rounded-xl border bg-card hover:bg-accent/50 transition-colors"
+              className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
             >
               <div className="min-w-0 flex-1">
-                <p className="font-semibold text-foreground truncate">{inv.client_name}</p>
-                <p className="text-sm text-muted-foreground">
+                <p className="type-body-strong truncate">{inv.client_name}</p>
+                <p className="type-metadata">
                   Due {new Date(inv.due_date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
                 </p>
               </div>
               <div className="flex items-center gap-3 flex-shrink-0 ml-3">
-                <p className="font-semibold text-foreground text-right">
+                <p className="type-data text-right">
                   {formatCurrency(inv.invoice_amount, inv.currency)}
                 </p>
                 <StatusChip status={inv.status} />

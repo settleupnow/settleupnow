@@ -18,7 +18,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
     <div className="min-h-screen flex flex-col bg-background">
       <header className="sticky top-0 z-40 border-b bg-card/80 backdrop-blur-md">
         <div className="container max-w-2xl mx-auto flex items-center justify-between h-14 px-4">
-          <Link to="/" className="text-lg font-bold tracking-tight text-foreground">
+          <Link to="/" className="type-h3 tracking-tight">
             Settle<span className="text-primary">Up</span>
           </Link>
         </div>
@@ -38,9 +38,10 @@ export function AppLayout({ children }: { children: ReactNode }) {
                 to={to}
                 onClick={() => trigger("light")}
                 className={cn(
-                  "flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-lg text-xs font-medium transition-colors",
+                  "flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-sm type-ui-label transition-colors",
                   active ? "text-primary" : "text-muted-foreground hover:text-foreground"
                 )}
+                style={{ fontSize: '12px' }}
               >
                 <Icon className="h-5 w-5" />
                 {label}

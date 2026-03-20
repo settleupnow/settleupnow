@@ -15,6 +15,7 @@ export default {
     extend: {
       fontFamily: {
         sans: ['"Radio Canada Big"', 'sans-serif'],
+        mono: ['"DM Mono"', 'monospace'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -68,6 +69,24 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        /* Direct brand colors for one-off use */
+        ink: "#0D0D0D",
+        paper: "#F5F0E8",
+        mid: "#6B6560",
+        rule: "#D8D0C4",
+        naira: {
+          DEFAULT: "#1A6B3C",
+          light: "#2A8F52",
+          pale: "#E8F5EE",
+        },
+        amber: {
+          DEFAULT: "#E8A020",
+          pale: "#FDF3DC",
+        },
+        clay: {
+          DEFAULT: "#C4613A",
+          pale: "#FAF0EB",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -76,20 +95,12 @@ export default {
       },
       keyframes: {
         "accordion-down": {
-          from: {
-            height: "0",
-          },
-          to: {
-            height: "var(--radix-accordion-content-height)",
-          },
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
-          from: {
-            height: "var(--radix-accordion-content-height)",
-          },
-          to: {
-            height: "0",
-          },
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
         },
       },
       animation: {

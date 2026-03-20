@@ -33,7 +33,7 @@ export function InvoiceEditForm({ invoice, onSave, onCancel }: Props) {
         <Button variant="ghost" size="icon" onClick={onCancel}>
           <ArrowLeftLine className="h-5 w-5" />
         </Button>
-        <h1 className="text-2xl font-bold text-foreground">Edit Invoice</h1>
+        <h1 className="type-h1">Edit Invoice</h1>
       </div>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
