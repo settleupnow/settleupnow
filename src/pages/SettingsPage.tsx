@@ -65,12 +65,12 @@ export default function SettingsPage() {
         <Button variant="ghost" size="icon" asChild>
           <Link to="/"><ArrowLeftLine className="h-5 w-5" /></Link>
         </Button>
-        <h1 className="text-2xl font-bold text-foreground">Settings</h1>
+        <h1 className="type-h1">Settings</h1>
       </div>
 
       {/* Business Profile */}
-      <div className="rounded-xl border bg-card p-5 space-y-5">
-        <p className="text-sm font-medium text-foreground">Business Profile</p>
+      <div className="rounded-lg border bg-card p-5 space-y-5">
+        <p className="type-h3">Business Profile</p>
         {loadingProfile ? (
           <div className="flex justify-center py-4">
             <Loading3Line className="h-5 w-5 animate-spin text-muted-foreground" />
@@ -125,10 +125,10 @@ export default function SettingsPage() {
       </div>
 
       {/* Message Templates */}
-      <div className="rounded-xl border bg-card p-5 space-y-5">
+      <div className="rounded-lg border bg-card p-5 space-y-5">
         <div>
-          <p className="text-sm font-medium text-foreground mb-1">Message Templates</p>
-          <p className="text-xs text-muted-foreground">
+          <p className="type-h3 mb-1">Message Templates</p>
+          <p className="type-body-small">
             Use placeholders: {"{{client_name}}"}, {"{{invoice_amount}}"}, {"{{due_date}}"}, {"{{days_overdue}}"}
           </p>
         </div>
@@ -157,7 +157,7 @@ export default function SettingsPage() {
       </div>
 
       {/* Logout */}
-      <div className="rounded-xl border bg-card p-5">
+      <div className="rounded-lg border bg-card p-5">
         <Button
           variant="destructive"
           className="w-full"

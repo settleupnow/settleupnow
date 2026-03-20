@@ -15,13 +15,11 @@ export default function ResetPassword() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Listen for the PASSWORD_RECOVERY event from Supabase
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY") {
         setReady(true);
       }
     });
-    // Also check hash for recovery token
     if (window.location.hash.includes("type=recovery")) {
       setReady(true);
     }
@@ -59,10 +57,10 @@ export default function ResetPassword() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background px-4">
         <div className="w-full max-w-sm text-center space-y-4">
-          <h1 className="text-2xl font-bold text-foreground">
+          <h1 className="type-h1">
             Settle<span className="text-primary">Up</span>
           </h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="type-body-small">
             Processing your reset link...
           </p>
           <Loading3Line className="h-6 w-6 animate-spin text-muted-foreground mx-auto" />
@@ -75,10 +73,10 @@ export default function ResetPassword() {
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-foreground">
+          <h1 className="type-h1">
             Settle<span className="text-primary">Up</span>
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">Set your new password</p>
+          <p className="type-body-small mt-1">Set your new password</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">

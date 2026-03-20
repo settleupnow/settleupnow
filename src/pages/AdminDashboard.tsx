@@ -13,7 +13,6 @@ import {
   ChartVerticalLine,
   ExitLine,
   DeleteLine,
-  DownSmallLine,
 } from "@mingcute/react";
 import {
   BarChart,
@@ -23,7 +22,6 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Legend,
 } from "recharts";
 import {
   Select,
@@ -122,7 +120,6 @@ export default function AdminDashboard() {
   const [searchParams, setSearchParams] = useSearchParams();
   const screen = (searchParams.get("tab") as Screen) || "overview";
   const setScreen = (s: Screen) => setSearchParams({ tab: s });
-  const [authError, setAuthError] = useState<string | null>(null);
 
   useEffect(() => {
     if (authLoading) return;
@@ -131,16 +128,14 @@ export default function AdminDashboard() {
     console.log("is_admin value:", user?.user_metadata?.is_admin);
   }, [user, authLoading]);
 
-  // Loading state
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <p className="text-muted-foreground">Loading...</p>
+        <p className="type-body-small">Loading...</p>
       </div>
     );
   }
 
-  // Not logged in or not admin
   if (!user || user.user_metadata?.is_admin !== true) {
     console.log("Not admin, redirecting");
     return <Navigate to="/" replace />;
@@ -151,9 +146,9 @@ export default function AdminDashboard() {
       {/* Sidebar */}
       <aside className="w-56 border-r bg-card flex flex-col shrink-0">
         <div className="p-5 border-b">
-          <h1 className="text-lg font-bold text-foreground">
+          <h1 className="type-h3">
             Settle<span className="text-primary">Up</span>{" "}
-            <span className="text-xs font-normal text-muted-foreground">Admin</span>
+            <span className="type-metadata">Admin</span>
           </h1>
         </div>
         <nav className="flex-1 p-3 space-y-1">
@@ -161,9 +156,9 @@ export default function AdminDashboard() {
             <button
               key={key}
               onClick={() => setScreen(key)}
-              className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+              className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-sm type-ui-label transition-colors ${
                 screen === key
-                  ? "bg-primary/10 text-primary"
+                  ? "bg-naira-pale text-primary"
                   : "text-muted-foreground hover:bg-accent hover:text-foreground"
               }`}
             >
@@ -215,14 +210,12 @@ function OverviewScreen() {
 
   return (
     <div>
-      <h2 className="text-xl font-bold text-foreground mb-6">Overview</h2>
+      <h2 className="type-h1 mb-6">Overview</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {cards.map((c) => (
-          <div key={c.label} className="rounded-xl border bg-card p-5">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              {c.label}
-            </p>
-            <p className="text-3xl font-bold mt-2 text-foreground">{c.value.toLocaleString()}</p>
+          <div key={c.label} className="rounded-lg border bg-card p-5">
+            <p className="type-section-label">{c.label}</p>
+            <p className="type-data text-3xl mt-2">{c.value.toLocaleString()}</p>
           </div>
         ))}
       </div>
@@ -254,36 +247,36 @@ function UsersScreen() {
 
   return (
     <div>
-      <h2 className="text-xl font-bold text-foreground mb-6">Users</h2>
-      <div className="rounded-xl border bg-card overflow-hidden">
+      <h2 className="type-h1 mb-6">Users</h2>
+      <div className="rounded-lg border bg-card overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full">
             <thead>
-              <tr className="border-b bg-muted/30">
-                <th className="text-left px-4 py-3 font-medium text-muted-foreground">Email</th>
-                <th className="text-left px-4 py-3 font-medium text-muted-foreground">Joined</th>
-                <th className="text-right px-4 py-3 font-medium text-muted-foreground">Invoices</th>
-                <th className="text-right px-4 py-3 font-medium text-muted-foreground">Total Value</th>
-                <th className="text-left px-4 py-3 font-medium text-muted-foreground">Last Active</th>
+              <tr className="bg-ink text-white">
+                <th className="text-left px-4 py-3 type-section-label !text-white">Email</th>
+                <th className="text-left px-4 py-3 type-section-label !text-white">Joined</th>
+                <th className="text-right px-4 py-3 type-section-label !text-white">Invoices</th>
+                <th className="text-right px-4 py-3 type-section-label !text-white">Total Value</th>
+                <th className="text-left px-4 py-3 type-section-label !text-white">Last Active</th>
                 <th className="px-4 py-3"></th>
               </tr>
             </thead>
             <tbody>
-              {users.map((u) => (
-                <tr key={u.id} className="border-b last:border-0 hover:bg-muted/20 transition-colors">
-                  <td className="px-4 py-3 text-foreground">{u.email}</td>
-                  <td className="px-4 py-3 text-muted-foreground">
+              {users.map((u, i) => (
+                <tr key={u.id} className={`border-b last:border-0 ${i % 2 === 0 ? 'bg-card' : 'bg-background'}`}>
+                  <td className="px-4 py-3 type-body">{u.email}</td>
+                  <td className="px-4 py-3 type-metadata">
                     {new Date(u.created_at).toLocaleDateString("en-GB", {
                       day: "numeric",
                       month: "short",
                       year: "numeric",
                     })}
                   </td>
-                  <td className="px-4 py-3 text-right text-foreground">{u.invoice_count}</td>
-                  <td className="px-4 py-3 text-right text-foreground">
+                  <td className="px-4 py-3 text-right type-data">{u.invoice_count}</td>
+                  <td className="px-4 py-3 text-right type-data">
                     {formatCurrency(u.total_invoice_value, "NGN")}
                   </td>
-                  <td className="px-4 py-3 text-muted-foreground">
+                  <td className="px-4 py-3 type-metadata">
                     {u.last_sign_in_at
                       ? new Date(u.last_sign_in_at).toLocaleDateString("en-GB", {
                           day: "numeric",
@@ -301,8 +294,8 @@ function UsersScreen() {
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>Delete Account</AlertDialogTitle>
-                          <AlertDialogDescription>
+                          <AlertDialogTitle className="type-h2">Delete Account</AlertDialogTitle>
+                          <AlertDialogDescription className="type-body">
                             This will permanently delete <strong>{u.email}</strong> and all their data. This cannot be
                             undone.
                           </AlertDialogDescription>
@@ -352,56 +345,56 @@ function InvoicesScreen() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold text-foreground">Invoices</h2>
+        <h2 className="type-h1">Invoices</h2>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-36">
             <SelectValue placeholder="Filter status" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All</SelectItem>
-            <SelectItem value="unpaid">Unpaid</SelectItem>
+            <SelectItem value="unpaid">Pending</SelectItem>
             <SelectItem value="overdue">Overdue</SelectItem>
-            <SelectItem value="paid">Paid</SelectItem>
+            <SelectItem value="paid">Settled</SelectItem>
           </SelectContent>
         </Select>
       </div>
-      <div className="rounded-xl border bg-card overflow-hidden">
+      <div className="rounded-lg border bg-card overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full">
             <thead>
-              <tr className="border-b bg-muted/30">
-                <th className="text-left px-4 py-3 font-medium text-muted-foreground">User</th>
-                <th className="text-left px-4 py-3 font-medium text-muted-foreground">Client</th>
-                <th className="text-right px-4 py-3 font-medium text-muted-foreground">Amount</th>
-                <th className="text-left px-4 py-3 font-medium text-muted-foreground">Status</th>
-                <th className="text-left px-4 py-3 font-medium text-muted-foreground">Due Date</th>
-                <th className="text-right px-4 py-3 font-medium text-muted-foreground">Reminders</th>
+              <tr className="bg-ink text-white">
+                <th className="text-left px-4 py-3 type-section-label !text-white">User</th>
+                <th className="text-left px-4 py-3 type-section-label !text-white">Client</th>
+                <th className="text-right px-4 py-3 type-section-label !text-white">Amount</th>
+                <th className="text-left px-4 py-3 type-section-label !text-white">Status</th>
+                <th className="text-left px-4 py-3 type-section-label !text-white">Due Date</th>
+                <th className="text-right px-4 py-3 type-section-label !text-white">Reminders</th>
               </tr>
             </thead>
             <tbody>
-              {filtered.map((inv) => (
-                <tr key={inv.id} className="border-b last:border-0 hover:bg-muted/20 transition-colors">
-                  <td className="px-4 py-3 text-muted-foreground truncate max-w-[160px]">{inv.user_email}</td>
-                  <td className="px-4 py-3 text-foreground">{inv.client_name}</td>
-                  <td className="px-4 py-3 text-right text-foreground">
+              {filtered.map((inv, i) => (
+                <tr key={inv.id} className={`border-b last:border-0 ${i % 2 === 0 ? 'bg-card' : 'bg-background'}`}>
+                  <td className="px-4 py-3 type-metadata truncate max-w-[160px]">{inv.user_email}</td>
+                  <td className="px-4 py-3 type-body">{inv.client_name}</td>
+                  <td className="px-4 py-3 text-right type-data">
                     {formatCurrency(inv.invoice_amount, inv.currency)}
                   </td>
                   <td className="px-4 py-3">
                     <StatusChip status={inv.status as any} />
                   </td>
-                  <td className="px-4 py-3 text-muted-foreground">
+                  <td className="px-4 py-3 type-metadata">
                     {new Date(inv.due_date).toLocaleDateString("en-GB", {
                       day: "numeric",
                       month: "short",
                       year: "numeric",
                     })}
                   </td>
-                  <td className="px-4 py-3 text-right text-foreground">{inv.reminder_count}</td>
+                  <td className="px-4 py-3 text-right type-data">{inv.reminder_count}</td>
                 </tr>
               ))}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
+                  <td colSpan={6} className="px-4 py-8 text-center type-body-small">
                     No invoices found.
                   </td>
                 </tr>
@@ -430,50 +423,52 @@ function StatsScreen() {
 
   return (
     <div className="space-y-8">
-      <h2 className="text-xl font-bold text-foreground">Stats — Last 30 Days</h2>
+      <h2 className="type-h1">Stats — Last 30 Days</h2>
 
-      <div className="rounded-xl border bg-card p-5">
-        <h3 className="text-sm font-medium text-muted-foreground mb-4">Invoices Created per Day</h3>
+      <div className="rounded-lg border bg-card p-5">
+        <h3 className="type-section-label mb-4">Invoices Created per Day</h3>
         <ResponsiveContainer width="100%" height={280}>
           <BarChart data={stats.chartData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="hsl(220, 13%, 91%)" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#D8D0C4" />
             <XAxis
               dataKey="date"
-              tick={{ fontSize: 11, fill: "hsl(220, 10%, 46%)" }}
+              tick={{ fontSize: 11, fill: "#6B6560", fontFamily: "'DM Mono', monospace" }}
               tickFormatter={(v) => v.slice(5)}
             />
-            <YAxis tick={{ fontSize: 11, fill: "hsl(220, 10%, 46%)" }} allowDecimals={false} />
+            <YAxis tick={{ fontSize: 11, fill: "#6B6560", fontFamily: "'DM Mono', monospace" }} allowDecimals={false} />
             <Tooltip
               contentStyle={{
-                borderRadius: 12,
-                border: "1px solid hsl(220, 13%, 91%)",
+                borderRadius: 6,
+                border: "1px solid #D8D0C4",
                 fontSize: 12,
+                fontFamily: "'DM Mono', monospace",
               }}
             />
-            <Bar dataKey="invoices" fill="hsl(200, 100%, 48%)" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="invoices" fill="#1A6B3C" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>
 
-      <div className="rounded-xl border bg-card p-5">
-        <h3 className="text-sm font-medium text-muted-foreground mb-4">Emails Sent per Day</h3>
+      <div className="rounded-lg border bg-card p-5">
+        <h3 className="type-section-label mb-4">Emails Sent per Day</h3>
         <ResponsiveContainer width="100%" height={280}>
           <BarChart data={stats.chartData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="hsl(220, 13%, 91%)" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#D8D0C4" />
             <XAxis
               dataKey="date"
-              tick={{ fontSize: 11, fill: "hsl(220, 10%, 46%)" }}
+              tick={{ fontSize: 11, fill: "#6B6560", fontFamily: "'DM Mono', monospace" }}
               tickFormatter={(v) => v.slice(5)}
             />
-            <YAxis tick={{ fontSize: 11, fill: "hsl(220, 10%, 46%)" }} allowDecimals={false} />
+            <YAxis tick={{ fontSize: 11, fill: "#6B6560", fontFamily: "'DM Mono', monospace" }} allowDecimals={false} />
             <Tooltip
               contentStyle={{
-                borderRadius: 12,
-                border: "1px solid hsl(220, 13%, 91%)",
+                borderRadius: 6,
+                border: "1px solid #D8D0C4",
                 fontSize: 12,
+                fontFamily: "'DM Mono', monospace",
               }}
             />
-            <Bar dataKey="emails" fill="hsl(145, 63%, 42%)" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="emails" fill="#E8A020" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>
