@@ -52,7 +52,7 @@ export default function InvoiceDetail() {
     return (
       <div className="text-center py-16 space-y-3">
         <p className="type-body-small">Invoice not found.</p>
-        <Button asChild variant="outline"><Link to="/">Go back</Link></Button>
+        <Button asChild variant="outline"><Link to="/app">Go back</Link></Button>
       </div>
     );
   }
@@ -160,7 +160,7 @@ export default function InvoiceDetail() {
     <div className="space-y-6">
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" asChild>
-          <Link to="/"><ArrowLeftLine className="h-5 w-5" /></Link>
+          <Link to="/app"><ArrowLeftLine className="h-5 w-5" /></Link>
         </Button>
         <h1 className="type-h1 flex-1">Invoice Detail</h1>
         <Button variant="ghost" size="icon" onClick={() => { trigger("light"); setEditing(true); }}>

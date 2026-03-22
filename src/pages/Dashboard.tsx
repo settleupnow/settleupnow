@@ -53,7 +53,7 @@ export default function Dashboard() {
       <div className="flex items-center justify-between">
         <h1 className="type-h1">Dashboard</h1>
         <Button asChild size="sm" onClick={() => trigger("light")}>
-          <Link to="/add">
+          <Link to="/app/add">
             <AddCircleLine className="h-4 w-4 mr-1" /> New Invoice
           </Link>
         </Button>
@@ -81,7 +81,7 @@ export default function Dashboard() {
           <FileLine className="h-12 w-12 mx-auto text-muted-foreground/40" />
           <p className="type-body-small">No invoices yet. Create your first one!</p>
           <Button asChild variant="outline">
-            <Link to="/add">Add Invoice</Link>
+            <Link to="/app/add">Add Invoice</Link>
           </Button>
         </div>
       ) : (
@@ -89,7 +89,7 @@ export default function Dashboard() {
           {sorted.map((inv) => (
             <Link
               key={inv.id}
-              to={`/invoice/${inv.id}`}
+              to={`/app/invoice/${inv.id}`}
               onClick={() => trigger("light")}
               className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
             >

@@ -6,9 +6,9 @@ import { trigger } from "@/lib/haptics";
 import { PageTransition } from "@/components/PageTransition";
 
 const navItems = [
-  { to: "/", icon: Home1Line, label: "Dashboard" },
-  { to: "/add", icon: AddCircleLine, label: "Add" },
-  { to: "/settings", icon: Settings3Line, label: "Settings" },
+  { to: "/app", icon: Home1Line, label: "Dashboard" },
+  { to: "/app/add", icon: AddCircleLine, label: "Add" },
+  { to: "/app/settings", icon: Settings3Line, label: "Settings" },
 ];
 
 export function AppLayout({ children }: { children: ReactNode }) {
@@ -18,7 +18,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
     <div className="min-h-screen flex flex-col bg-background">
       <header className="sticky top-0 z-40 border-b bg-card/80 backdrop-blur-md">
         <div className="container max-w-2xl mx-auto flex items-center justify-between h-14 px-4">
-          <Link to="/" className="type-h3 tracking-tight">
+          <Link to="/app" className="type-h3 tracking-tight">
             Settle<span className="text-primary">Up</span>
           </Link>
         </div>
