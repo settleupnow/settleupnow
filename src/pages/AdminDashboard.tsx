@@ -138,7 +138,7 @@ export default function AdminDashboard() {
 
   if (!user || user.user_metadata?.is_admin !== true) {
     console.log("Not admin, redirecting");
-    return <Navigate to="/" replace />;
+    return <Navigate to="/app" replace />;
   }
 
   return (

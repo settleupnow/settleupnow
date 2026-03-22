@@ -89,7 +89,7 @@ export default function Dashboard() {
           {sorted.map((inv) => (
             <Link
               key={inv.id}
-              to={`/invoice/${inv.id}`}
+              to={`/app/invoice/${inv.id}`}
               onClick={() => trigger("light")}
               className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
             >

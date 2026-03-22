@@ -109,7 +109,7 @@ export default function AddInvoice() {
 
       trigger("success");
       toast.success("Invoice created!");
-      navigate("/");
+      navigate("/app");
     } catch {
       trigger("error");
       toast.error("Failed to create invoice.");
