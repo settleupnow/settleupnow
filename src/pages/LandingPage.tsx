@@ -88,7 +88,7 @@ function WaitlistModal({ open, onClose }: { open: boolean; onClose: () => void }
 
         {success ? (
           <div className="text-center py-4">
-            <CheckboxCircleLine className="w-10 h-10 mx-auto mb-4" style={{ color: "#1A6B3C" }} />
+            <CheckCircleLine className="w-10 h-10 mx-auto mb-4" style={{ color: "#1A6B3C" }} />
             <p className="font-sans font-bold text-lg text-white mb-2">you're on the list.</p>
             <p className="font-sans text-sm" style={{ color: "#999" }}>we'll be in touch.</p>
             <button
