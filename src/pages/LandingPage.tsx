@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import settleupLogo from "@/assets/settleup-logo.svg";
 import { supabase } from "@/lib/supabase";
-import { CheckboxCircleLine, CloseLine } from "@mingcute/react";
+import { CheckCircleLine, CloseLine } from "@mingcute/react";
 
 function useScrollReveal() {
   const ref = useRef<HTMLDivElement>(null);
