@@ -81,7 +81,7 @@ export default function Dashboard() {
           <FileLine className="h-12 w-12 mx-auto text-muted-foreground/40" />
           <p className="type-body-small">No invoices yet. Create your first one!</p>
           <Button asChild variant="outline">
-            <Link to="/add">Add Invoice</Link>
+            <Link to="/app/add">Add Invoice</Link>
           </Button>
         </div>
       ) : (
