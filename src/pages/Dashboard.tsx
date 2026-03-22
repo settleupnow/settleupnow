@@ -53,7 +53,7 @@ export default function Dashboard() {
       <div className="flex items-center justify-between">
         <h1 className="type-h1">Dashboard</h1>
         <Button asChild size="sm" onClick={() => trigger("light")}>
-          <Link to="/add">
+          <Link to="/app/add">
             <AddCircleLine className="h-4 w-4 mr-1" /> New Invoice
           </Link>
         </Button>
