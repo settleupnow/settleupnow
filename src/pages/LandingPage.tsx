@@ -111,11 +111,10 @@ function WaitlistModal({ open, onClose }: { open: boolean; onClose: () => void }
                 placeholder="you@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 rounded-full text-sm text-white placeholder:text-gray-500 outline-none focus:ring-2"
+                className="w-full px-4 py-3 rounded-full text-sm text-white placeholder:text-gray-500 outline-none focus:ring-2 focus:ring-[#1A6B3C]"
                 style={{
                   backgroundColor: "#1a1a1a",
                   border: "1px solid #333",
-                  focusRingColor: "#1A6B3C",
                 }}
                 autoFocus
               />
