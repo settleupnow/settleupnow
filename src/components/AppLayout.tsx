@@ -6,9 +6,9 @@ import { trigger } from "@/lib/haptics";
 import { PageTransition } from "@/components/PageTransition";
 
 const navItems = [
-  { to: "/", icon: Home1Line, label: "Dashboard" },
-  { to: "/add", icon: AddCircleLine, label: "Add" },
-  { to: "/settings", icon: Settings3Line, label: "Settings" },
+  { to: "/app", icon: Home1Line, label: "Dashboard" },
+  { to: "/app/add", icon: AddCircleLine, label: "Add" },
+  { to: "/app/settings", icon: Settings3Line, label: "Settings" },
 ];
 
 export function AppLayout({ children }: { children: ReactNode }) {
