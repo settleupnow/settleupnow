@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import settleupLogo from "@/assets/settleup-logo.svg";
+import { supabase } from "@/lib/supabase";
+import { CheckboxCircleLine, CloseLine } from "@mingcute/react";
 
 function useScrollReveal() {
   const ref = useRef<HTMLDivElement>(null);
@@ -35,8 +37,110 @@ function Reveal({ children, className = "", delay = 0 }: { children: React.React
   );
 }
 
+function WaitlistModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState("");
+
+  if (!open) return null;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    if (!email || !email.includes("@")) {
+      setError("please enter a valid email.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const { error: dbError } = await supabase.from("waitlist").insert({ email: email.trim().toLowerCase() });
+      if (dbError) {
+        if (dbError.code === "23505") {
+          setSuccess(true);
+        } else {
+          setError("something went wrong. try again.");
+        }
+      } else {
+        setSuccess(true);
+      }
+    } catch {
+      setError("something went wrong. try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center px-4" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+      <div
+        className="relative w-full max-w-sm rounded-xl p-6"
+        style={{ backgroundColor: "#242424", border: "1px solid #1A6B3C" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 text-gray-500 hover:text-white transition-colors"
+        >
+          <CloseLine className="w-5 h-5" />
+        </button>
+
+        {success ? (
+          <div className="text-center py-4">
+            <CheckboxCircleLine className="w-10 h-10 mx-auto mb-4" style={{ color: "#1A6B3C" }} />
+            <p className="font-sans font-bold text-lg text-white mb-2">you're on the list.</p>
+            <p className="font-sans text-sm" style={{ color: "#999" }}>we'll be in touch.</p>
+            <button
+              onClick={onClose}
+              className="mt-6 font-mono text-xs tracking-wide hover:text-white transition-colors"
+              style={{ color: "#6B6560" }}
+            >
+              close
+            </button>
+          </div>
+        ) : (
+          <>
+            <h3 className="font-sans font-bold text-xl text-white mb-2">save your spot.</h3>
+            <p className="font-sans text-sm mb-6" style={{ color: "#999" }}>
+              we're onboarding founding members soon. drop your email and we'll reach out.
+            </p>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <input
+                type="email"
+                placeholder="you@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-3 rounded-full text-sm text-white placeholder:text-gray-500 outline-none focus:ring-2"
+                style={{
+                  backgroundColor: "#1a1a1a",
+                  border: "1px solid #333",
+                  focusRingColor: "#1A6B3C",
+                }}
+                autoFocus
+              />
+              {error && (
+                <p className="font-mono text-xs" style={{ color: "#C4623A" }}>{error}</p>
+              )}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full font-sans text-sm font-semibold px-8 py-3.5 rounded-full text-white transition-transform hover:scale-[1.02] active:scale-[0.97] disabled:opacity-50"
+                style={{ backgroundColor: "#1A6B3C" }}
+              >
+                {loading ? "joining..." : "join the waitlist"}
+              </button>
+            </form>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
+  const [waitlistOpen, setWaitlistOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 80);
@@ -46,6 +150,8 @@ export default function LandingPage() {
 
   return (
     <div className="font-sans">
+      <WaitlistModal open={waitlistOpen} onClose={() => setWaitlistOpen(false)} />
+
       {/* Nav */}
       <nav
         className="fixed top-0 inset-x-0 z-50 transition-colors duration-300"
@@ -68,13 +174,13 @@ export default function LandingPage() {
             >
               sign in
             </Link>
-            <Link
-              to="/app"
+            <button
+              onClick={() => setWaitlistOpen(true)}
               className="font-sans text-sm font-semibold px-5 py-2.5 rounded-full text-white transition-colors"
               style={{ backgroundColor: "#1A6B3C" }}
             >
               get early access
-            </Link>
+            </button>
           </div>
         </div>
       </nav>
@@ -96,13 +202,13 @@ export default function LandingPage() {
           <p className="font-sans text-lg mb-10 max-w-lg mx-auto" style={{ color: "#555555", lineHeight: 1.7 }}>
             you did the work. getting paid shouldn't be another job.
           </p>
-          <Link
-            to="/app"
+          <button
+            onClick={() => setWaitlistOpen(true)}
             className="inline-block font-sans text-sm font-semibold px-8 py-4 rounded-full text-white transition-transform hover:scale-[1.02] active:scale-[0.97]"
             style={{ backgroundColor: "#1A6B3C" }}
           >
             get early access — it's free
-          </Link>
+          </button>
           <p className="font-mono text-xs mt-5 tracking-wide" style={{ color: "#6B6560" }}>
             join freelancers already using SettleUp
           </p>
@@ -228,13 +334,13 @@ export default function LandingPage() {
                   </li>
                 ))}
               </ul>
-              <Link
-                to="/app"
-                className="block text-center font-sans text-sm font-semibold px-8 py-4 rounded-full text-white transition-transform hover:scale-[1.02] active:scale-[0.97]"
+              <button
+                onClick={() => setWaitlistOpen(true)}
+                className="block w-full text-center font-sans text-sm font-semibold px-8 py-4 rounded-full text-white transition-transform hover:scale-[1.02] active:scale-[0.97]"
                 style={{ backgroundColor: "#1A6B3C" }}
               >
                 claim your spot
-              </Link>
+              </button>
             </div>
           </Reveal>
           <Reveal delay={300}>
