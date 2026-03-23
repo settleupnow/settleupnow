@@ -1,5 +1,5 @@
 import { supabase } from "./supabase";
-import { Invoice, MessageTemplates, LineItem, BusinessProfile } from "./types";
+import { Invoice, MessageTemplates, LineItem, BusinessProfile, Client } from "./types";
 
 async function getCurrentUserId(): Promise<string> {
   const { data: { user } } = await supabase.auth.getUser();
@@ -85,7 +85,6 @@ export async function deleteInvoice(id: string) {
 
 // Line Items
 export async function addLineItems(items: LineItem[]) {
-  // Omit 'id' and 'amount' — amount is a generated column in the DB
   const cleanItems = items.map(({ id, amount, ...rest }) => rest);
   const { error } = await supabase.from("line_items").insert(cleanItems);
   if (error) {
@@ -137,6 +136,20 @@ export async function saveBusinessProfile(profile: Omit<BusinessProfile, "id">) 
   }
 }
 
+export async function uploadLogo(file: File): Promise<string> {
+  const userId = await getCurrentUserId();
+  const ext = file.name.split(".").pop();
+  const path = `${userId}/logo.${ext}`;
+
+  const { error } = await supabase.storage
+    .from("logos")
+    .upload(path, file, { upsert: true });
+  if (error) throw error;
+
+  const { data } = supabase.storage.from("logos").getPublicUrl(path);
+  return data.publicUrl;
+}
+
 // Next invoice number
 export async function getNextInvoiceNumber(): Promise<string> {
   const { data } = await supabase
@@ -156,7 +169,7 @@ export async function getNextInvoiceNumber(): Promise<string> {
   return "INV-001";
 }
 
-// Templates stay in localStorage (no table needed)
+// Templates stay in localStorage
 export function getTemplates(): MessageTemplates {
   const data = localStorage.getItem(TEMPLATES_KEY);
   return data ? JSON.parse(data) : DEFAULT_TEMPLATES;
@@ -164,4 +177,28 @@ export function getTemplates(): MessageTemplates {
 
 export function saveTemplates(templates: MessageTemplates) {
   localStorage.setItem(TEMPLATES_KEY, JSON.stringify(templates));
+}
+
+// Clients
+export async function getClients(): Promise<Client[]> {
+  const { data, error } = await supabase
+    .from("clients")
+    .select("*")
+    .order("name");
+  if (error) {
+    console.error("Error fetching clients:", error);
+    return [];
+  }
+  return data as Client[];
+}
+
+export async function upsertClient(client: { name: string; email: string | null; whatsapp: string | null }) {
+  const userId = await getCurrentUserId();
+  const { error } = await supabase
+    .from("clients")
+    .upsert(
+      { user_id: userId, name: client.name, email: client.email, whatsapp: client.whatsapp },
+      { onConflict: "user_id,name" }
+    );
+  if (error) console.error("Error upserting client:", error);
 }

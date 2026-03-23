@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { addInvoice, addLineItems, getNextInvoiceNumber } from "@/lib/store";
-import { LineItem } from "@/lib/types";
+import { addInvoice, addLineItems, getNextInvoiceNumber, getClients, upsertClient } from "@/lib/store";
+import { LineItem, Client } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +21,59 @@ interface LineItemDraft {
   unit_price: number;
 }
 
+function ClientAutocomplete({
+  value,
+  onChange,
+  onSelect,
+  clients,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  onSelect: (c: Client) => void;
+  clients: Client[];
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  const filtered = value.length > 0
+    ? clients.filter((c) => c.name.toLowerCase().includes(value.toLowerCase()))
+    : [];
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  return (
+    <div ref={ref} className="relative">
+      <Input
+        value={value}
+        onChange={(e) => { onChange(e.target.value); setOpen(true); }}
+        onFocus={() => setOpen(true)}
+        placeholder="Acme Corp"
+      />
+      {open && filtered.length > 0 && (
+        <div className="absolute z-50 mt-1 w-full rounded-md border bg-card shadow-lg max-h-48 overflow-y-auto">
+          {filtered.map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              className="w-full text-left px-3 py-2 type-body hover:bg-accent transition-colors"
+              onClick={() => { onSelect(c); setOpen(false); }}
+            >
+              <span className="type-body-strong">{c.name}</span>
+              {c.email && <span className="type-metadata ml-2">{c.email}</span>}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function AddInvoice() {
   const navigate = useNavigate();
   const [invoiceNumber, setInvoiceNumber] = useState("");
@@ -33,13 +86,21 @@ export default function AddInvoice() {
   const [taxRate, setTaxRate] = useState(0);
   const [paymentLink, setPaymentLink] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [clients, setClients] = useState<Client[]>([]);
   const [lineItems, setLineItems] = useState<LineItemDraft[]>([
     { description: "", quantity: 1, unit_price: 0 },
   ]);
 
   useEffect(() => {
     getNextInvoiceNumber().then(setInvoiceNumber);
+    getClients().then(setClients);
   }, []);
+
+  function handleClientSelect(c: Client) {
+    setClientName(c.name);
+    if (c.email) setClientEmail(c.email);
+    if (c.whatsapp) setClientWhatsapp(c.whatsapp);
+  }
 
   function updateLineItem(index: number, field: keyof LineItemDraft, value: string | number) {
     const updated = [...lineItems];
@@ -107,6 +168,13 @@ export default function AddInvoice() {
       }));
       await addLineItems(items);
 
+      // Auto-save client
+      await upsertClient({
+        name: clientName,
+        email: clientEmail || null,
+        whatsapp: clientWhatsapp || null,
+      });
+
       trigger("success");
       toast.success("Invoice created!");
       navigate("/app");
@@ -134,7 +202,12 @@ export default function AddInvoice() {
         </div>
         <div className="space-y-2">
           <Label>Client Name *</Label>
-          <Input value={clientName} onChange={(e) => setClientName(e.target.value)} placeholder="Acme Corp" />
+          <ClientAutocomplete
+            value={clientName}
+            onChange={setClientName}
+            onSelect={handleClientSelect}
+            clients={clients}
+          />
         </div>
         <div className="space-y-2">
           <Label>Client Email *</Label>
@@ -145,68 +218,102 @@ export default function AddInvoice() {
           <Input value={clientWhatsapp} onChange={(e) => setClientWhatsapp(e.target.value)} placeholder="+234..." />
         </div>
 
-        {/* Line Items */}
-        <div className="space-y-3">
-          <Label>Line Items *</Label>
-          {lineItems.map((item, i) => (
-            <div key={i} className="rounded-lg border bg-card p-3 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="type-section-label">Item {i + 1}</span>
-                {lineItems.length > 1 && (
-                  <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => removeLineItem(i)}>
-                    <Delete2Line className="h-3.5 w-3.5 text-destructive" />
-                  </Button>
-                )}
-              </div>
-              <Input
-                placeholder="Description"
-                value={item.description}
-                onChange={(e) => updateLineItem(i, "description", e.target.value)}
-              />
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <Label className="text-xs">Qty</Label>
-                  <div className="flex items-center gap-1">
+        {/* Document-style Line Items Card */}
+        <div className="relative bg-white rounded-lg overflow-hidden" style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.18)" }}>
+          {/* Folded corner */}
+          <div
+            className="absolute top-0 right-0 w-10 h-10 z-10"
+            style={{
+              background: "linear-gradient(225deg, hsl(var(--color-paper)) 50%, #e0dbd3 50%, #e8e3db 52%, #fff 52%)",
+            }}
+          />
+
+          <div className="p-5 pt-6 space-y-4">
+            <p className="type-section-label">LINE ITEMS</p>
+
+            {/* Header row */}
+            <div className="grid grid-cols-12 gap-2 type-section-label text-xs pb-1 border-b">
+              <div className="col-span-5">DESCRIPTION</div>
+              <div className="col-span-3 text-center">QTY</div>
+              <div className="col-span-3 text-right">UNIT PRICE</div>
+              <div className="col-span-1"></div>
+            </div>
+
+            {lineItems.map((item, i) => (
+              <div key={i} className="grid grid-cols-12 gap-2 items-center">
+                <div className="col-span-5">
+                  <Input
+                    placeholder="Description"
+                    value={item.description}
+                    onChange={(e) => updateLineItem(i, "description", e.target.value)}
+                    className="border-0 border-b rounded-none bg-transparent px-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                  />
+                </div>
+                <div className="col-span-3">
+                  <div className="flex items-center justify-center gap-1">
                     <Button
                       type="button"
                       variant="outline"
                       size="icon"
-                      className="h-10 w-10 shrink-0"
+                      className="h-7 w-7 shrink-0"
                       onClick={() => updateLineItem(i, "quantity", Math.max(1, item.quantity - 1))}
                     >
-                      <span className="text-lg font-medium">−</span>
+                      <span className="text-sm font-medium">−</span>
                     </Button>
-                    <span className="flex-1 text-center type-data">{item.quantity}</span>
+                    <span className="w-8 text-center type-data text-sm">{item.quantity}</span>
                     <Button
                       type="button"
                       variant="outline"
                       size="icon"
-                      className="h-10 w-10 shrink-0"
+                      className="h-7 w-7 shrink-0"
                       onClick={() => updateLineItem(i, "quantity", item.quantity + 1)}
                     >
-                      <span className="text-lg font-medium">+</span>
+                      <span className="text-sm font-medium">+</span>
                     </Button>
                   </div>
                 </div>
-                <div>
-                  <Label className="text-xs">Unit Price</Label>
+                <div className="col-span-3">
                   <Input
                     type="number"
                     min="0"
                     step="0.01"
                     value={item.unit_price}
                     onChange={(e) => updateLineItem(i, "unit_price", parseFloat(e.target.value) || 0)}
+                    className="border-0 border-b rounded-none bg-transparent px-0 text-right focus-visible:ring-0 focus-visible:ring-offset-0 type-data text-sm"
                   />
                 </div>
+                <div className="col-span-1 flex justify-end">
+                  {lineItems.length > 1 && (
+                    <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => removeLineItem(i)}>
+                      <Delete2Line className="h-3.5 w-3.5 text-destructive" />
+                    </Button>
+                  )}
+                </div>
               </div>
-              <p className="text-right type-data">
-                Amount: {currency} {(item.quantity * item.unit_price).toLocaleString()}
-              </p>
+            ))}
+
+            <Button type="button" variant="outline" size="sm" onClick={addLineItemRow} className="w-full">
+              <AddCircleLine className="h-4 w-4 mr-1" /> Add Line Item
+            </Button>
+
+            {/* Totals */}
+            <div className="border-t pt-3 space-y-1">
+              <div className="flex justify-end gap-8">
+                <span className="type-body-small">Subtotal</span>
+                <span className="type-data w-28 text-right">{currency} {subtotal.toLocaleString()}</span>
+              </div>
+              {taxRate > 0 && (
+                <div className="flex justify-end gap-8">
+                  <span className="type-body-small">Tax ({taxRate}%)</span>
+                  <span className="type-data w-28 text-right">{currency} {taxAmount.toLocaleString()}</span>
+                </div>
+              )}
+              <div className="flex justify-end gap-8 pt-1 border-t">
+                <span className="type-body-strong">Total</span>
+                <span className="type-data font-bold w-28 text-right">{currency} {total.toLocaleString()}</span>
+              </div>
             </div>
-          ))}
-          <Button type="button" variant="outline" size="sm" onClick={addLineItemRow} className="w-full">
-            <AddCircleLine className="h-4 w-4 mr-1" /> Add Line Item
-          </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -223,24 +330,6 @@ export default function AddInvoice() {
           <div className="space-y-2">
             <Label>Currency</Label>
             <Input value={currency} onChange={(e) => setCurrency(e.target.value)} />
-          </div>
-        </div>
-
-        {/* Totals */}
-        <div className="rounded-lg border bg-card p-4 space-y-1">
-          <div className="flex justify-between">
-            <span className="type-body-small">Subtotal</span>
-            <span className="type-data">{currency} {subtotal.toLocaleString()}</span>
-          </div>
-          {taxRate > 0 && (
-            <div className="flex justify-between">
-              <span className="type-body-small">Tax ({taxRate}%)</span>
-              <span className="type-data">{currency} {taxAmount.toLocaleString()}</span>
-            </div>
-          )}
-          <div className="flex justify-between pt-1 border-t border-border">
-            <span className="type-body-strong">Total</span>
-            <span className="type-data font-bold">{currency} {total.toLocaleString()}</span>
           </div>
         </div>
 
