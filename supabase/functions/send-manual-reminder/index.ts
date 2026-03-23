@@ -6,14 +6,15 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-const DEFAULT_EMAIL_BODY = `Hi {{client_name}},\n\nThis is a friendly reminder that your invoice of {{invoice_amount}} was due on {{due_date}}. It is now {{days_overdue}} days overdue.\n\nPlease arrange payment at your earliest convenience.\n\nThank you.`;
+const DEFAULT_EMAIL_BODY = `Hi {{client_name}},\n\nThis is a friendly reminder that your invoice {{invoice_number}} of {{invoice_amount}} was due on {{due_date}}. It is now {{days_overdue}} days overdue.\n\nPlease arrange payment at your earliest convenience.\n\nThank you.`;
 
 function fillTemplate(template: string, invoice: any, overdueDays: number): string {
   return template
     .replace(/\{\{client_name\}\}/g, invoice.client_name)
     .replace(/\{\{invoice_amount\}\}/g, `${invoice.currency} ${invoice.invoice_amount}`)
     .replace(/\{\{due_date\}\}/g, invoice.due_date)
-    .replace(/\{\{days_overdue\}\}/g, String(Math.max(0, overdueDays)));
+    .replace(/\{\{days_overdue\}\}/g, String(Math.max(0, overdueDays)))
+    .replace(/\{\{invoice_number\}\}/g, invoice.invoice_number || "");
 }
 
 Deno.serve(async (req) => {
@@ -32,7 +33,7 @@ Deno.serve(async (req) => {
     const resendKey = Deno.env.get("RESEND_API_KEY");
     if (!resendKey) throw new Error("RESEND_API_KEY not set");
 
-    const { invoice_id, email_template } = await req.json();
+    const { invoice_id } = await req.json();
     if (!invoice_id) throw new Error("invoice_id is required");
 
     const supabase = createClient(
@@ -49,13 +50,26 @@ Deno.serve(async (req) => {
     if (error || !invoice) throw new Error("Invoice not found");
     if (!invoice.client_email) throw new Error("No client email on invoice");
 
+    // Check for custom reminder template
+    let customBody: string | null = null;
+    if (invoice.user_id) {
+      const { data: profile } = await supabase
+        .from("business_profile")
+        .select("reminder_template")
+        .eq("user_id", invoice.user_id)
+        .maybeSingle();
+      if (profile?.reminder_template) {
+        customBody = profile.reminder_template;
+      }
+    }
+
     const now = new Date();
     now.setHours(0, 0, 0, 0);
     const due = new Date(invoice.due_date);
     due.setHours(0, 0, 0, 0);
     const overdueDays = Math.max(0, Math.round((now.getTime() - due.getTime()) / (1000 * 60 * 60 * 24)));
 
-    const template = email_template || DEFAULT_EMAIL_BODY;
+    const template = customBody || DEFAULT_EMAIL_BODY;
     const subject = overdueDays > 0 ? "Overdue Invoice Reminder" : "Invoice Payment Reminder";
     const body = fillTemplate(template, invoice, overdueDays);
 

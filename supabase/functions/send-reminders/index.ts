@@ -9,19 +9,19 @@ const corsHeaders = {
 const DEFAULT_EMAIL_TEMPLATE = {
   dueSoon: {
     subject: "Reminder: Invoice due in 3 days",
-    body: `Hi {{client_name}},\n\nThis is a friendly reminder that your invoice of {{invoice_amount}} is due on {{due_date}} (in 3 days).\n\nPlease arrange payment before the due date.\n\nThank you.`,
+    body: `Hi {{client_name}},\n\nThis is a friendly reminder that your invoice {{invoice_number}} of {{invoice_amount}} is due on {{due_date}} (in 3 days).\n\nPlease arrange payment before the due date.\n\nThank you.`,
   },
   dueToday: {
     subject: "Reminder: Invoice due today",
-    body: `Hi {{client_name}},\n\nThis is a reminder that your invoice of {{invoice_amount}} is due today ({{due_date}}).\n\nPlease arrange payment today.\n\nThank you.`,
+    body: `Hi {{client_name}},\n\nThis is a reminder that your invoice {{invoice_number}} of {{invoice_amount}} is due today ({{due_date}}).\n\nPlease arrange payment today.\n\nThank you.`,
   },
   overdue: {
     subject: "Overdue Invoice Reminder",
-    body: `Hi {{client_name}},\n\nThis is a reminder that your invoice of {{invoice_amount}} was due on {{due_date}}. It is now {{days_overdue}} days overdue.\n\nPlease arrange payment at your earliest convenience.\n\nThank you.`,
+    body: `Hi {{client_name}},\n\nThis is a reminder that your invoice {{invoice_number}} of {{invoice_amount}} was due on {{due_date}}. It is now {{days_overdue}} days overdue.\n\nPlease arrange payment at your earliest convenience.\n\nThank you.`,
   },
   stillOverdue: {
     subject: "Overdue Invoice - Follow Up",
-    body: `Hi {{client_name}},\n\nThis is a follow-up reminder that your invoice of {{invoice_amount}} was due on {{due_date}}. It is now {{days_overdue}} days overdue.\n\nPlease settle this invoice as soon as possible.\n\nThank you.`,
+    body: `Hi {{client_name}},\n\nThis is a follow-up reminder that your invoice {{invoice_number}} of {{invoice_amount}} was due on {{due_date}}. It is now {{days_overdue}} days overdue.\n\nPlease settle this invoice as soon as possible.\n\nThank you.`,
   },
 };
 
@@ -38,11 +38,11 @@ function fillTemplate(template: string, invoice: any, overdueDays: number): stri
     .replace(/\{\{client_name\}\}/g, invoice.client_name)
     .replace(/\{\{invoice_amount\}\}/g, `${invoice.currency} ${invoice.invoice_amount}`)
     .replace(/\{\{due_date\}\}/g, invoice.due_date)
-    .replace(/\{\{days_overdue\}\}/g, String(Math.max(0, overdueDays)));
+    .replace(/\{\{days_overdue\}\}/g, String(Math.max(0, overdueDays)))
+    .replace(/\{\{invoice_number\}\}/g, invoice.invoice_number || "");
 }
 
 function getReminderType(diffDays: number): keyof typeof DEFAULT_EMAIL_TEMPLATE | null {
-  // diffDays = today - due_date (positive means overdue)
   if (diffDays === -3) return "dueSoon";
   if (diffDays === 0) return "dueToday";
   if (diffDays === 3 || diffDays === 7 || diffDays === 14) return "overdue";
@@ -108,9 +108,22 @@ Deno.serve(async (req) => {
 
       if (!reminderType || !inv.client_email) continue;
 
+      // Check for custom reminder template
+      let customBody: string | null = null;
+      if (inv.user_id) {
+        const { data: profile } = await supabase
+          .from("business_profile")
+          .select("reminder_template")
+          .eq("user_id", inv.user_id)
+          .maybeSingle();
+        if (profile?.reminder_template) {
+          customBody = profile.reminder_template;
+        }
+      }
+
       const tmpl = DEFAULT_EMAIL_TEMPLATE[reminderType];
       const subject = fillTemplate(tmpl.subject, inv, Math.max(0, diff));
-      const body = fillTemplate(tmpl.body, inv, Math.max(0, diff));
+      const body = fillTemplate(customBody || tmpl.body, inv, Math.max(0, diff));
 
       await sendEmail(resendKey, inv.client_email, subject, body);
 
