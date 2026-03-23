@@ -38,9 +38,19 @@ export interface BusinessProfile {
   bank_name: string;
   bank_account_number: string;
   bank_account_name: string;
+  reminder_template?: string | null;
 }
 
 export interface MessageTemplates {
   email: string;
   whatsapp: string;
+}
+
+export interface Client {
+  id: string;
+  user_id: string;
+  name: string;
+  email: string | null;
+  whatsapp: string | null;
+  created_at: string;
 }
