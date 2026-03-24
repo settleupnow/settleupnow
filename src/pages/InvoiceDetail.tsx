@@ -10,6 +10,7 @@ import { ArrowLeftLine, SendPlaneLine, CheckCircleLine, TimeLine, Edit2Line, Loa
 import { toast } from "sonner";
 import { InvoiceEditForm } from "@/components/InvoiceEditForm";
 import { trigger } from "@/lib/haptics";
+import { supabase } from "@/lib/supabase";
 
 export default function InvoiceDetail() {
   const { id } = useParams<{ id: string }>();
