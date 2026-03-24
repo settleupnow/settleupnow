@@ -100,24 +100,15 @@ export default function InvoiceDetail() {
         reader.readAsDataURL(pdfBlob);
       });
 
-      const res = await fetch(
-        "https://ijexmbrtbbqbxvusiiew.supabase.co/functions/v1/send-invoice",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlqZXhtYnJ0YmJxYnh2dXNpaWV3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5NzYxMDEsImV4cCI6MjA4ODU1MjEwMX0.s4mZwGSOt9HpTYbDKXQz4MkMBDxp4ADz2QXkmUbT_DE",
-          },
-          body: JSON.stringify({
-            to: invoice!.client_email,
-            client_name: invoice!.client_name,
-            invoice_number: invoice!.invoice_number,
-            pdf_base64: base64,
-          }),
-        }
-      );
-      const result = await res.json();
-      if (!res.ok) throw new Error(result.error || "Failed to send invoice");
+      const { data: result, error } = await supabase.functions.invoke("send-invoice", {
+        body: {
+          to: invoice!.client_email,
+          client_name: invoice!.client_name,
+          invoice_number: invoice!.invoice_number,
+          pdf_base64: base64,
+        },
+      });
+      if (error) throw error;
       trigger("success");
       toast.success("Invoice sent!");
     } catch {
