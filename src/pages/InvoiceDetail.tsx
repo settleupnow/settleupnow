@@ -69,19 +69,10 @@ export default function InvoiceDetail() {
     trigger("warning");
     setSending(true);
     try {
-      const res = await fetch(
-        "https://ijexmbrtbbqbxvusiiew.supabase.co/functions/v1/send-manual-reminder",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlqZXhtYnJ0YmJxYnh2dXNpaWV3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5NzYxMDEsImV4cCI6MjA4ODU1MjEwMX0.s4mZwGSOt9HpTYbDKXQz4MkMBDxp4ADz2QXkmUbT_DE",
-          },
-          body: JSON.stringify({ invoice_id: id }),
-        }
-      );
-      const result = await res.json();
-      if (!res.ok) throw new Error(result.error || "Failed to send reminder");
+      const { data: result, error } = await supabase.functions.invoke("send-manual-reminder", {
+        body: { invoice_id: id },
+      });
+      if (error) throw error;
       trigger("success");
       toast.success("Reminder sent!");
       await refreshInvoice();
