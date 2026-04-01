@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Loading3Line } from "@mingcute/react";
 import { toast } from "sonner";
 import settleupLogo from "@/assets/settleup-logo.svg";
