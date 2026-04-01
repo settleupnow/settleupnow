@@ -12,6 +12,7 @@ import SettingsPage from "./pages/SettingsPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
+import CheckEmail from "./pages/CheckEmail";
 import ResetPassword from "./pages/ResetPassword";
 import LandingPage from "./pages/LandingPage";
 import NotFound from "./pages/NotFound";
@@ -51,6 +52,7 @@ function AppRoutes() {
       <Route path="/" element={<LandingPage />} />
       <Route path="/sign-in" element={user ? <Navigate to="/app" replace /> : <SignIn />} />
       <Route path="/sign-up" element={user ? <Navigate to="/app" replace /> : <SignUp />} />
+      <Route path="/check-email" element={<CheckEmail />} />
       <Route path="/app/login" element={<Navigate to="/sign-in" replace />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/misson-control-15998" element={<ErrorBoundary><AdminDashboard /></ErrorBoundary>} />

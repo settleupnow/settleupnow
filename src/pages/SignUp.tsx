@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Loading3Line } from "@mingcute/react";
 import { toast } from "sonner";
 import settleupLogo from "@/assets/settleup-logo.svg";
@@ -9,6 +9,7 @@ export default function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -21,7 +22,7 @@ export default function SignUp() {
         options: { emailRedirectTo: window.location.origin },
       });
       if (error) throw error;
-      toast.success("Account created! Check your email to confirm.");
+      navigate("/check-email", { state: { email } });
     } catch (err: any) {
       toast.error(err.message || "Signup failed.");
     } finally {
