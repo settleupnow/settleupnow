@@ -22,7 +22,7 @@ export default function SignUp() {
         options: { emailRedirectTo: window.location.origin },
       });
       if (error) throw error;
-      toast.success("Account created! Check your email to confirm.");
+      navigate("/check-email", { state: { email } });
     } catch (err: any) {
       toast.error(err.message || "Signup failed.");
     } finally {
