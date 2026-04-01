@@ -166,13 +166,6 @@ export default function LandingPage() {
             />
           </Link>
           <div className="flex items-center gap-5">
-            <Link
-              to="/app"
-              className="font-sans text-sm font-medium transition-colors duration-300"
-              style={{ color: scrolled ? "#ffffff" : "#1a1a1a" }}
-            >
-              sign in
-            </Link>
             <button
               onClick={() => setWaitlistOpen(true)}
               className="font-sans text-sm font-semibold px-5 py-2.5 rounded-full text-white transition-colors"

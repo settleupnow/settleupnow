@@ -10,7 +10,8 @@ import AddInvoice from "./pages/AddInvoice";
 import InvoiceDetail from "./pages/InvoiceDetail";
 import SettingsPage from "./pages/SettingsPage";
 import AdminDashboard from "./pages/AdminDashboard";
-import AuthPage from "./pages/AuthPage";
+import SignIn from "./pages/SignIn";
+import SignUp from "./pages/SignUp";
 import ResetPassword from "./pages/ResetPassword";
 import LandingPage from "./pages/LandingPage";
 import NotFound from "./pages/NotFound";
@@ -30,7 +31,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (!user) return <Navigate to="/app/login" replace />;
+  if (!user) return <Navigate to="/sign-in" replace />;
   return <>{children}</>;
 }
 
@@ -48,7 +49,9 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
-      <Route path="/app/login" element={user ? <Navigate to="/app" replace /> : <AuthPage />} />
+      <Route path="/sign-in" element={user ? <Navigate to="/app" replace /> : <SignIn />} />
+      <Route path="/sign-up" element={user ? <Navigate to="/app" replace /> : <SignUp />} />
+      <Route path="/app/login" element={<Navigate to="/sign-in" replace />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/misson-control-15998" element={<ErrorBoundary><AdminDashboard /></ErrorBoundary>} />
       <Route
