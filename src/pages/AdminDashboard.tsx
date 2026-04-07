@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
@@ -506,6 +506,8 @@ function BlogScreen() {
   const [loading, setLoading] = useState(true);
   const [editingPost, setEditingPost] = useState<Partial<BlogPost> | null>(null);
   const [saving, setSaving] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const load = async () => {
     setLoading(true);
@@ -562,6 +564,22 @@ function BlogScreen() {
     }
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !editingPost) return;
+    
+    setUploadingImage(true);
+    try {
+      const url = await uploadBlogImage(file);
+      setEditingPost({ ...editingPost, cover_image_url: url });
+      toast.success("Image uploaded!");
+    } catch (err) {
+      toast.error("Failed to upload image.");
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   if (loading && !editingPost) return <Loader />;
 
   if (editingPost) {
@@ -606,6 +624,37 @@ function BlogScreen() {
               placeholder="Brief summary for the blog list cards..."
               rows={2}
             />
+          </div>
+
+          {/* Cover Image Upload */}
+          <div className="space-y-2">
+            <Label>Cover Image</Label>
+            <div className="flex items-center gap-4">
+              {editingPost.cover_image_url && (
+                <img
+                  src={editingPost.cover_image_url}
+                  alt="Cover"
+                  className="h-20 w-32 rounded-md border object-cover bg-background"
+                />
+              )}
+              <input
+                type="file"
+                ref={fileInputRef}
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageUpload}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={uploadingImage}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <Upload2Line className="h-4 w-4 mr-1.5" />
+                {uploadingImage ? "Uploading..." : editingPost.cover_image_url ? "Change Image" : "Upload Image"}
+              </Button>
+            </div>
           </div>
 
           <div className="space-y-2">
