@@ -1,5 +1,5 @@
 import { supabase } from "./supabase";
-import { Invoice, MessageTemplates, LineItem, BusinessProfile, Client } from "./types";
+import { Invoice, MessageTemplates, LineItem, BusinessProfile, Client, BlogPost } from "./types";
 
 async function getCurrentUserId(): Promise<string> {
   const { data: { user } } = await supabase.auth.getUser();
@@ -202,3 +202,82 @@ export async function upsertClient(client: { name: string; email: string | null;
     );
   if (error) console.error("Error upserting client:", error);
 }
+
+// Blog Posts
+export async function getPublicBlogPosts(): Promise<BlogPost[]> {
+  const { data, error } = await supabase
+    .from("blog_posts")
+    .select("*")
+    .eq("is_published", true)
+    .order("created_at", { ascending: false });
+  if (error) {
+    console.error("Error fetching public blog posts:", error);
+    return [];
+  }
+  return data as BlogPost[];
+}
+
+export async function getPublicBlogPost(slug: string): Promise<BlogPost | null> {
+  const { data, error } = await supabase
+    .from("blog_posts")
+    .select("*")
+    .eq("slug", slug)
+    .eq("is_published", true)
+    .maybeSingle();
+  if (error) {
+    console.error("Error fetching blog post:", error);
+    return null;
+  }
+  return data as BlogPost | null;
+}
+
+export async function adminGetBlogPosts(): Promise<BlogPost[]> {
+  const { data, error } = await supabase
+    .from("blog_posts")
+    .select("*")
+    .order("created_at", { ascending: false });
+  if (error) {
+    console.error("Error fetching admin blog posts:", error);
+    return [];
+  }
+  return data as BlogPost[];
+}
+
+export async function addBlogPost(post: Omit<BlogPost, "id" | "author_id" | "created_at" | "updated_at">): Promise<string> {
+  const userId = await getCurrentUserId();
+  const { data, error } = await supabase
+    .from("blog_posts")
+    .insert({ ...post, author_id: userId })
+    .select("id")
+    .single();
+  if (error) throw error;
+  return data.id;
+}
+
+export async function updateBlogPost(id: string, updates: Partial<BlogPost>) {
+  const { error } = await supabase
+    .from("blog_posts")
+    .update({ ...updates, updated_at: new Date().toISOString() })
+    .eq("id", id);
+  if (error) throw error;
+}
+
+export async function deleteBlogPost(id: string) {
+  const { error } = await supabase.from("blog_posts").delete().eq("id", id);
+  if (error) throw error;
+}
+
+export async function uploadBlogImage(file: File): Promise<string> {
+  const userId = await getCurrentUserId();
+  const ext = file.name.split(".").pop();
+  const path = `${userId}/${Date.now()}.${ext}`;
+
+  const { error } = await supabase.storage
+    .from("blog-images")
+    .upload(path, file, { upsert: true });
+  if (error) throw error;
+
+  const { data } = supabase.storage.from("blog-images").getPublicUrl(path);
+  return data.publicUrl;
+}
+

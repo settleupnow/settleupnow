@@ -54,3 +54,16 @@ export interface Client {
   whatsapp: string | null;
   created_at: string;
 }
+
+export interface BlogPost {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string | null;
+  content: string;
+  cover_image_url: string | null;
+  is_published: boolean;
+  author_id: string;
+  created_at: string;
+  updated_at: string;
+}

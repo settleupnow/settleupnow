@@ -15,6 +15,8 @@ import SignUp from "./pages/SignUp";
 import CheckEmail from "./pages/CheckEmail";
 import ResetPassword from "./pages/ResetPassword";
 import LandingPage from "./pages/LandingPage";
+import BlogList from "./pages/BlogList";
+import BlogPost from "./pages/BlogPost";
 import NotFound from "./pages/NotFound";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Loading3Line } from "@mingcute/react";
@@ -50,6 +52,8 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
+      <Route path="/blog" element={<BlogList />} />
+      <Route path="/blog/:slug" element={<BlogPost />} />
       <Route path="/sign-in" element={user ? <Navigate to="/app" replace /> : <SignIn />} />
       <Route path="/sign-up" element={user ? <Navigate to="/app" replace /> : <SignUp />} />
       <Route path="/check-email" element={<CheckEmail />} />

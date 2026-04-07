@@ -13,7 +13,28 @@ import {
   ChartVerticalLine,
   ExitLine,
   DeleteLine,
+  PlusLine,
+  EditLine,
+  ArrowLeftLine,
+  CheckLine,
+  CloseLine,
+  Upload2Line,
+  LayoutLine,
 } from "@mingcute/react";
+import { toast } from "sonner";
+import { trigger } from "@/lib/haptics";
+import { 
+  adminGetBlogPosts, 
+  addBlogPost, 
+  updateBlogPost, 
+  deleteBlogPost, 
+  uploadBlogImage 
+} from "@/lib/store";
+import { BlogPost, InvoiceStatus } from "@/lib/types";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
   BarChart,
   Bar,
@@ -42,7 +63,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-type Screen = "overview" | "users" | "invoices" | "stats";
+type Screen = "overview" | "users" | "invoices" | "stats" | "blog";
 
 interface AdminUser {
   id: string;
@@ -113,6 +134,7 @@ const navItems: { key: Screen; label: string; icon: typeof Home1Line }[] = [
   { key: "users", label: "Users", icon: User1Line },
   { key: "invoices", label: "Invoices", icon: FileLine },
   { key: "stats", label: "Stats", icon: ChartVerticalLine },
+  { key: "blog", label: "Blog", icon: LayoutLine },
 ];
 
 export default function AdminDashboard() {
@@ -180,6 +202,7 @@ export default function AdminDashboard() {
         {screen === "users" && <UsersScreen />}
         {screen === "invoices" && <InvoicesScreen />}
         {screen === "stats" && <StatsScreen />}
+        {screen === "blog" && <BlogScreen />}
       </main>
     </div>
   );
@@ -380,7 +403,7 @@ function InvoicesScreen() {
                     {formatCurrency(inv.invoice_amount, inv.currency)}
                   </td>
                   <td className="px-4 py-3">
-                    <StatusChip status={inv.status as any} />
+                    <StatusChip status={inv.status as InvoiceStatus} />
                   </td>
                   <td className="px-4 py-3 type-metadata">
                     {new Date(inv.due_date).toLocaleDateString("en-GB", {
@@ -472,6 +495,229 @@ function StatsScreen() {
           </BarChart>
         </ResponsiveContainer>
       </div>
+    </div>
+  );
+}
+
+/* ─── Blog ───────────────────────────────────────── */
+
+function BlogScreen() {
+  const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editingPost, setEditingPost] = useState<Partial<BlogPost> | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      const data = await adminGetBlogPosts();
+      setPosts(data);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingPost?.title || !editingPost?.slug || !editingPost?.content) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      if (editingPost.id) {
+        await updateBlogPost(editingPost.id, editingPost);
+        toast.success("Post updated!");
+      } else {
+        await addBlogPost({
+          title: editingPost.title,
+          slug: editingPost.slug,
+          content: editingPost.content,
+          excerpt: editingPost.excerpt || null,
+          cover_image_url: editingPost.cover_image_url || null,
+          is_published: !!editingPost.is_published,
+        });
+        toast.success("Post created!");
+      }
+      setEditingPost(null);
+      load();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to save post.";
+      toast.error(message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeletePost = async (id: string) => {
+    try {
+      await deleteBlogPost(id);
+      toast.success("Post deleted.");
+      load();
+    } catch (err) {
+      toast.error("Failed to delete post.");
+    }
+  };
+
+  if (loading && !editingPost) return <Loader />;
+
+  if (editingPost) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="icon" onClick={() => setEditingPost(null)}>
+            <ArrowLeftLine className="h-5 w-5" />
+          </Button>
+          <h2 className="type-h1">{editingPost.id ? "Edit Post" : "Create New Post"}</h2>
+        </div>
+
+        <form onSubmit={handleSave} className="space-y-5 rounded-lg border bg-card p-6 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Title *</Label>
+              <Input
+                value={editingPost.title || ""}
+                onChange={(e) => {
+                  const title = e.target.value;
+                  const slug = title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+                  setEditingPost({ ...editingPost, title, slug: editingPost.id ? editingPost.slug : slug });
+                }}
+                placeholder="The Future of Billing"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Slug *</Label>
+              <Input
+                value={editingPost.slug || ""}
+                onChange={(e) => setEditingPost({ ...editingPost, slug: e.target.value })}
+                placeholder="the-future-of-billing"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Excerpt (Search meta description)</Label>
+            <Textarea
+              value={editingPost.excerpt || ""}
+              onChange={(e) => setEditingPost({ ...editingPost, excerpt: e.target.value })}
+              placeholder="Brief summary for the blog list cards..."
+              rows={2}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Content (Markdown) *</Label>
+            <Textarea
+              value={editingPost.content || ""}
+              onChange={(e) => setEditingPost({ ...editingPost, content: e.target.value })}
+              placeholder="Write your story here..."
+              rows={12}
+              className="font-mono"
+            />
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="published"
+              checked={editingPost.is_published}
+              onCheckedChange={(checked) => setEditingPost({ ...editingPost, is_published: checked })}
+            />
+            <Label htmlFor="published">Published</Label>
+          </div>
+
+          <div className="flex justify-end gap-3 pt-4 border-t">
+            <Button type="button" variant="outline" onClick={() => setEditingPost(null)}>Cancel</Button>
+            <Button type="submit" disabled={saving}>
+              {saving ? "Saving..." : "Save Post"}
+            </Button>
+          </div>
+        </form>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="type-h1">Blog Posts</h2>
+          <p className="type-body-small mt-1 text-muted-foreground">Manage your public blog entries.</p>
+        </div>
+        <Button onClick={() => setEditingPost({ is_published: false })}>
+          <PlusLine className="h-4 w-4 mr-2" /> Create New Post
+        </Button>
+      </div>
+
+      {posts.length === 0 ? (
+        <div className="rounded-lg border bg-card p-12 flex flex-col items-center justify-center text-center">
+          <LayoutLine className="h-12 w-12 text-muted-foreground mb-4 opacity-50" />
+          <h3 className="type-h3">No Posts Yet</h3>
+          <p className="type-body-small text-muted-foreground mt-2 max-w-sm">
+            You haven't written any blog posts yet. Click "Create New Post" to start writing your first article.
+          </p>
+        </div>
+      ) : (
+        <div className="rounded-lg border bg-card overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-ink text-white">
+                  <th className="text-left px-4 py-3 type-section-label !text-white">Title</th>
+                  <th className="text-left px-4 py-3 type-section-label !text-white">Slug</th>
+                  <th className="text-left px-4 py-3 type-section-label !text-white">Status</th>
+                  <th className="text-left px-4 py-3 type-section-label !text-white">Created At</th>
+                  <th className="px-4 py-3"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {posts.map((post, i) => (
+                  <tr key={post.id} className={`border-b last:border-0 ${i % 2 === 0 ? 'bg-card' : 'bg-background'}`}>
+                    <td className="px-4 py-3 type-body font-medium">{post.title}</td>
+                    <td className="px-4 py-3 type-metadata">/{post.slug}</td>
+                    <td className="px-4 py-3">
+                      <span className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold ${
+                        post.is_published ? "bg-naira-pale text-naira" : "bg-muted text-muted-foreground"
+                      }`}>
+                        {post.is_published ? "Published" : "Draft"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 type-metadata">
+                      {new Date(post.created_at).toLocaleDateString()}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button variant="ghost" size="icon" onClick={() => setEditingPost(post)}>
+                          <EditLine className="h-4 w-4" />
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="text-destructive">
+                              <DeleteLine className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Post</AlertDialogTitle>
+                              <AlertDialogDescription>Are you sure you want to delete "{post.title}"?</AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDeletePost(post.id)}>Delete</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
