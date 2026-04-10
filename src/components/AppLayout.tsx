@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { trigger } from "@/lib/haptics";
 import { PageTransition } from "@/components/PageTransition";
 import logo from "@/assets/settleup-logo.svg";
-import { Analytics } from "@vercel/analytics/next";
+import { Analytics } from "@vercel/analytics/react";
 
 const navItems = [
   { to: "/app", icon: Home1Line, label: "Dashboard", exact: true },
