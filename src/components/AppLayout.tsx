@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { trigger } from "@/lib/haptics";
 import { PageTransition } from "@/components/PageTransition";
 import logo from "@/assets/settleup-logo.svg";
+import { Analytics } from "@vercel/analytics/next";
 
 const navItems = [
   { to: "/app", icon: Home1Line, label: "Dashboard", exact: true },
@@ -31,7 +32,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
 
       <nav className="fixed bottom-0 inset-x-0 z-40 border-t bg-card/95 backdrop-blur-md">
         <div className="container max-w-2xl mx-auto flex justify-around py-2">
-        {navItems.map(({ to, icon: Icon, label, exact }) => {
+          {navItems.map(({ to, icon: Icon, label, exact }) => {
             const active = exact ? pathname === to : pathname.startsWith(to);
             return (
               <Link
