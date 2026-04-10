@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { AppLayout } from "@/components/AppLayout";
 import Dashboard from "./pages/Dashboard";
 import AddInvoice from "./pages/AddInvoice";
+import InvoicesPage from "./pages/InvoicesPage";
 import InvoiceDetail from "./pages/InvoiceDetail";
 import SettingsPage from "./pages/SettingsPage";
 import BusinessProfileSettings from "./pages/settings/BusinessProfile";
@@ -71,6 +72,7 @@ function AppRoutes() {
             <AppLayout>
               <Routes>
                 <Route path="/" element={<Dashboard />} />
+                <Route path="/invoices" element={<InvoicesPage />} />
                 <Route path="/add" element={<AddInvoice />} />
                 <Route path="/invoice/:id" element={<InvoiceDetail />} />
                 <Route path="/settings" element={<SettingsPage />} />
