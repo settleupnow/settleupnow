@@ -63,6 +63,10 @@ export default function InvoiceDetail() {
     await updateInvoice(id!, { status: "paid", paid_at: new Date().toISOString() });
     toast.success("Invoice marked as paid!");
     await refreshInvoice();
+    // Send congratulatory email to invoice owner (fire-and-forget)
+    supabase.functions.invoke("send-paid-notification", {
+      body: { invoice_id: id },
+    }).catch(() => {});
   }
 
   async function handleSendReminder() {
