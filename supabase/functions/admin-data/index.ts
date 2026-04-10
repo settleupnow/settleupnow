@@ -127,6 +127,10 @@ Deno.serve(async (req) => {
       const { data: usersData } =
         await adminClient.auth.admin.listUsers({ perPage: 1000 });
 
+      const { count: waitlistCount } = await adminClient
+        .from("waitlist")
+        .select("*", { count: 'exact', head: true });
+
       const totalUsers = usersData?.users?.length || 0;
       const totalInvoices = invoices?.length || 0;
       const totalEmailsSent = (invoices || []).reduce(
@@ -173,10 +177,24 @@ Deno.serve(async (req) => {
           totalInvoices,
           totalEmailsSent,
           activeInvoices,
+          waitlistCount: waitlistCount || 0,
           chartData,
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
+    }
+
+    if (type === "waitlist") {
+      const { data: waitlist, error } = await adminClient
+        .from("waitlist")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      return new Response(JSON.stringify({ waitlist }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     if (type === "delete-user") {
@@ -195,6 +213,22 @@ Deno.serve(async (req) => {
       });
     }
 
+    if (type === "delete-waitlist") {
+      const body = await req.json();
+      const id = body.id;
+      if (!id) {
+        return new Response(JSON.stringify({ error: "id required" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const { error } = await adminClient.from("waitlist").delete().eq("id", id);
+      if (error) throw error;
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     return new Response(JSON.stringify({ error: "Invalid type parameter" }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -206,3 +240,4 @@ Deno.serve(async (req) => {
     });
   }
 });
+

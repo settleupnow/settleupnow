@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { addInvoice, addLineItems, getNextInvoiceNumber, getClients, upsertClient } from "@/lib/store";
+import { addInvoice, addLineItems, getNextInvoiceNumber, getClients, upsertClient, getBusinessProfile } from "@/lib/store";
 import { LineItem, Client } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -94,6 +94,11 @@ export default function AddInvoice() {
   useEffect(() => {
     getNextInvoiceNumber().then(setInvoiceNumber);
     getClients().then(setClients);
+    getBusinessProfile().then((profile) => {
+      if (profile?.include_vat_default && profile.vat_rate !== undefined) {
+        setTaxRate(profile.vat_rate);
+      }
+    });
   }, []);
 
   function handleClientSelect(c: Client) {

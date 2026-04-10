@@ -9,6 +9,10 @@ import Dashboard from "./pages/Dashboard";
 import AddInvoice from "./pages/AddInvoice";
 import InvoiceDetail from "./pages/InvoiceDetail";
 import SettingsPage from "./pages/SettingsPage";
+import BusinessProfileSettings from "./pages/settings/BusinessProfile";
+import ReminderMessageSettings from "./pages/settings/ReminderMessage";
+import TaxComplianceSettings from "./pages/settings/TaxCompliance";
+import NotificationPreferences from "./pages/settings/NotificationPreferences";
 import AdminDashboard from "./pages/AdminDashboard";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
@@ -70,6 +74,10 @@ function AppRoutes() {
                 <Route path="/add" element={<AddInvoice />} />
                 <Route path="/invoice/:id" element={<InvoiceDetail />} />
                 <Route path="/settings" element={<SettingsPage />} />
+                <Route path="/settings/profile" element={<BusinessProfileSettings />} />
+                <Route path="/settings/reminder" element={<ReminderMessageSettings />} />
+                <Route path="/settings/tax" element={<TaxComplianceSettings />} />
+                <Route path="/settings/notifications" element={<NotificationPreferences />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </AppLayout>

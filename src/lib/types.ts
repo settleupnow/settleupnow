@@ -39,6 +39,10 @@ export interface BusinessProfile {
   bank_account_number: string;
   bank_account_name: string;
   reminder_template?: string | null;
+  tin?: string | null;
+  vat_number?: string | null;
+  vat_rate?: number;
+  include_vat_default?: boolean;
 }
 
 export interface MessageTemplates {
@@ -66,4 +70,10 @@ export interface BlogPost {
   author_id: string;
   created_at: string;
   updated_at: string;
+}
+
+export interface WaitlistEntry {
+  id: string;
+  email: string;
+  created_at: string;
 }

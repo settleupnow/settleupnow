@@ -20,6 +20,8 @@ import {
   CloseLine,
   Upload2Line,
   LayoutLine,
+  UserFollowLine,
+  SendPlaneLine,
 } from "@mingcute/react";
 import { toast } from "sonner";
 import { trigger } from "@/lib/haptics";
@@ -63,7 +65,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-type Screen = "overview" | "users" | "invoices" | "stats" | "blog";
+type Screen = "overview" | "users" | "invoices" | "stats" | "blog" | "waitlist";
 
 interface AdminUser {
   id: string;
@@ -90,7 +92,14 @@ interface StatsData {
   totalInvoices: number;
   totalEmailsSent: number;
   activeInvoices: number;
+  waitlistCount: number;
   chartData: { date: string; invoices: number; emails: number }[];
+}
+
+interface WaitlistEntry {
+  id: string;
+  email: string;
+  created_at: string;
 }
 
 async function fetchAdmin(type: string, body?: object) {
@@ -133,6 +142,7 @@ const navItems: { key: Screen; label: string; icon: typeof Home1Line }[] = [
   { key: "overview", label: "Overview", icon: Home1Line },
   { key: "users", label: "Users", icon: User1Line },
   { key: "invoices", label: "Invoices", icon: FileLine },
+  { key: "waitlist", label: "Waitlist", icon: UserFollowLine },
   { key: "stats", label: "Stats", icon: ChartVerticalLine },
   { key: "blog", label: "Blog", icon: LayoutLine },
 ];
@@ -201,6 +211,7 @@ export default function AdminDashboard() {
         {screen === "overview" && <OverviewScreen />}
         {screen === "users" && <UsersScreen />}
         {screen === "invoices" && <InvoicesScreen />}
+        {screen === "waitlist" && <WaitlistScreen />}
         {screen === "stats" && <StatsScreen />}
         {screen === "blog" && <BlogScreen />}
       </main>
@@ -229,6 +240,7 @@ function OverviewScreen() {
     { label: "Total Invoices", value: stats.totalInvoices },
     { label: "Total Emails Sent", value: stats.totalEmailsSent },
     { label: "Active Invoices", value: stats.activeInvoices },
+    { label: "Waitlist", value: stats.waitlistCount || 0 },
   ];
 
   return (
@@ -767,6 +779,199 @@ function BlogScreen() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function WaitlistScreen() {
+  const [list, setList] = useState<WaitlistEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [emailToContact, setEmailToContact] = useState<string | null>(null);
+
+  const load = () => {
+    setLoading(true);
+    fetchAdmin("waitlist")
+      .then((d) => setList(d.waitlist))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(load, []);
+
+  const handleDelete = async (id: string) => {
+    await fetchAdmin("delete-waitlist", { id });
+    load();
+    toast.success("Entry removed");
+  };
+
+  if (loading) return <Loader />;
+
+  return (
+    <div>
+      <h2 className="type-h1 mb-6">Waitlist</h2>
+      <div className="rounded-lg border bg-card overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-ink text-white">
+                <th className="text-left px-4 py-3 type-section-label !text-white">Email</th>
+                <th className="text-left px-4 py-3 type-section-label !text-white">Joined At</th>
+                <th className="text-right px-4 py-3 type-section-label !text-white pr-6">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {list.map((entry, i) => (
+                <tr key={entry.id} className={`border-b last:border-0 ${i % 2 === 0 ? 'bg-card' : 'bg-background'}`}>
+                  <td className="px-4 py-4 type-body font-medium">{entry.email}</td>
+                  <td className="px-4 py-4 type-metadata">
+                    {new Date(entry.created_at).toLocaleString("en-GB", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit"
+                    })}
+                  </td>
+                  <td className="px-4 py-4 pr-6">
+                    <div className="flex items-center justify-end gap-2">
+                       <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="text-primary hover:text-primary hover:bg-naira-pale"
+                        onClick={() => setEmailToContact(entry.email)}
+                      >
+                        <SendPlaneLine className="h-4 w-4 mr-1.5" /> Email
+                      </Button>
+
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
+                            <DeleteLine className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle className="type-h2">Remove Entry</AlertDialogTitle>
+                            <AlertDialogDescription className="type-body">
+                              Remove <strong>{entry.email}</strong> from the waitlist?
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              onClick={() => handleDelete(entry.id)}
+                            >
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {list.length === 0 && (
+                <tr>
+                  <td colSpan={3} className="px-4 py-12 text-center type-body-small text-muted-foreground">
+                    Waitlist is empty.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <EmailModal 
+        email={emailToContact} 
+        onClose={() => setEmailToContact(null)} 
+      />
+    </div>
+  );
+}
+
+function EmailModal({ email, onClose }: { email: string | null; onClose: () => void }) {
+  const [subject, setSubject] = useState("Welcome to SettleUp");
+  const [body, setBody] = useState("");
+  const [sending, setSending] = useState(false);
+
+  useEffect(() => {
+    if (email) {
+      setBody(`Hi,\n\nThanks for joining the SettleUp waitlist! We're excited to have you.\n\n[Your message here]\n\nBest,\nThe SettleUp Team`);
+    }
+  }, [email]);
+
+  const handleSend = async () => {
+    if (!subject || !body) {
+      toast.error("Subject and message are required");
+      return;
+    }
+    setSending(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+
+      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-send-email`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ to: email, subject, body })
+      });
+
+      if (!res.ok) throw new Error("Failed to send email");
+      
+      toast.success("Email sent successfully!");
+      onClose();
+    } catch (err) {
+      toast.error("Failed to send email. Check console for details.");
+    } finally {
+      setSending(false);
+    }
+  };
+
+  if (!email) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+      <div className="bg-card w-full max-w-lg rounded-xl border shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+        <div className="p-6 border-b flex items-center justify-between">
+          <h3 className="type-h3">Contact User</h3>
+          <Button variant="ghost" size="icon" onClick={onClose}><CloseLine /></Button>
+        </div>
+        <div className="p-6 space-y-4">
+          <div className="space-y-1.5">
+            <Label className="type-metadata">Recipient</Label>
+            <Input value={email} disabled className="bg-muted text-muted-foreground cursor-not-allowed" />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="type-metadata">Subject</Label>
+            <Input value={subject} onChange={e => setSubject(e.target.value)} placeholder="Subject..." />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="type-metadata">Message</Label>
+            <Textarea 
+              value={body} 
+              onChange={e => setBody(e.target.value)} 
+              placeholder="Type your message..." 
+              rows={8}
+              className="resize-none"
+            />
+          </div>
+        </div>
+        <div className="p-6 bg-muted/50 border-t flex justify-end gap-3">
+          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button onClick={handleSend} disabled={sending}>
+            {sending ? "Sending..." : (
+              <>
+                <SendPlaneLine className="h-4 w-4 mr-2" />
+                Send Email
+              </>
+            )}
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }
