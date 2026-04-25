@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import settleupLogo from "@/assets/settleup-logo.svg";
-import { supabase } from "@/lib/supabase";
-import { CheckCircleLine, CloseLine } from "@mingcute/react";
 
 function useScrollReveal() {
   const ref = useRef<HTMLDivElement>(null);
@@ -37,109 +35,17 @@ function Reveal({ children, className = "", delay = 0 }: { children: React.React
   );
 }
 
-function WaitlistModal({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState("");
-
-  if (!open) return null;
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    if (!email || !email.includes("@")) {
-      setError("please enter a valid email.");
-      return;
-    }
-    setLoading(true);
-    try {
-      const { error: dbError } = await supabase.from("waitlist").insert({ email: email.trim().toLowerCase() });
-      if (dbError) {
-        if (dbError.code === "23505") {
-          setSuccess(true);
-        } else {
-          setError("something went wrong. try again.");
-        }
-      } else {
-        setSuccess(true);
-      }
-    } catch {
-      setError("something went wrong. try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
+function Check() {
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center px-4" onClick={onClose}>
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-      <div
-        className="relative w-full max-w-sm rounded-xl p-6"
-        style={{ backgroundColor: "#242424", border: "1px solid #1A6B3C" }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button
-          onClick={onClose}
-          className="absolute top-3 right-3 text-gray-500 hover:text-white transition-colors"
-        >
-          <CloseLine className="w-5 h-5" />
-        </button>
-
-        {success ? (
-          <div className="text-center py-4">
-            <CheckCircleLine className="w-10 h-10 mx-auto mb-4" style={{ color: "#1A6B3C" }} />
-            <p className="font-sans font-bold text-lg text-white mb-2">you're on the list.</p>
-            <p className="font-sans text-sm" style={{ color: "#999" }}>we'll be in touch.</p>
-            <button
-              onClick={onClose}
-              className="mt-6 font-mono text-xs tracking-wide hover:text-white transition-colors"
-              style={{ color: "#6B6560" }}
-            >
-              close
-            </button>
-          </div>
-        ) : (
-          <>
-            <h3 className="font-sans font-bold text-xl text-white mb-2">save your spot.</h3>
-            <p className="font-sans text-sm mb-6" style={{ color: "#999" }}>
-              we're onboarding founding members soon. drop your email and we'll reach out.
-            </p>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <input
-                type="email"
-                placeholder="you@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 rounded-full text-sm text-white placeholder:text-gray-500 outline-none focus:ring-2 focus:ring-[#1A6B3C]"
-                style={{
-                  backgroundColor: "#1a1a1a",
-                  border: "1px solid #333",
-                }}
-                autoFocus
-              />
-              {error && (
-                <p className="font-mono text-xs" style={{ color: "#C4623A" }}>{error}</p>
-              )}
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full font-sans text-sm font-semibold px-8 py-3.5 rounded-full text-white transition-transform hover:scale-[1.02] active:scale-[0.97] disabled:opacity-50"
-                style={{ backgroundColor: "#1A6B3C" }}
-              >
-                {loading ? "joining..." : "join the waitlist"}
-              </button>
-            </form>
-          </>
-        )}
-      </div>
-    </div>
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="flex-shrink-0">
+      <path d="M3 8L6.5 11.5L13 5" stroke="#1A6B3C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }
 
 export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
-  const [waitlistOpen, setWaitlistOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 80);
@@ -147,10 +53,14 @@ export default function LandingPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const goToSignup = (plan?: "basic" | "pro") => {
+    if (plan) localStorage.setItem("selected_plan", plan);
+    else localStorage.removeItem("selected_plan");
+    navigate("/sign-up");
+  };
+
   return (
     <div className="font-sans">
-      <WaitlistModal open={waitlistOpen} onClose={() => setWaitlistOpen(false)} />
-
       {/* Nav */}
       <nav
         className="fixed top-0 inset-x-0 z-50 transition-colors duration-300"
@@ -167,7 +77,7 @@ export default function LandingPage() {
           </Link>
           <div className="flex items-center gap-5">
             <button
-              onClick={() => setWaitlistOpen(true)}
+              onClick={() => goToSignup()}
               className="font-sans text-sm font-semibold px-5 py-2.5 rounded-full text-white transition-colors"
               style={{ backgroundColor: "#1A6B3C" }}
             >
@@ -195,11 +105,11 @@ export default function LandingPage() {
             you did the work. getting paid shouldn't be another job.
           </p>
           <button
-            onClick={() => setWaitlistOpen(true)}
+            onClick={() => goToSignup()}
             className="inline-block font-sans text-sm font-semibold px-8 py-4 rounded-full text-white transition-transform hover:scale-[1.02] active:scale-[0.97]"
             style={{ backgroundColor: "#1A6B3C" }}
           >
-            get early access — it's free
+            get started — it's free to try
           </button>
           <p className="font-mono text-xs mt-5 tracking-wide" style={{ color: "#6B6560" }}>
             join freelancers already using SettleUp
@@ -234,7 +144,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Section 2 — The Pain */}
+      {/* The Pain */}
       <section className="py-24 px-6" style={{ backgroundColor: "#1a1a1a" }}>
         <div className="max-w-2xl mx-auto text-center space-y-3">
           {[
@@ -258,7 +168,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Section 3 — How It Works */}
+      {/* How It Works */}
       <section className="py-24 px-6" style={{ backgroundColor: "#1a1a1a" }}>
         <div className="max-w-4xl mx-auto">
           <Reveal>
@@ -288,58 +198,106 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Section 4 — Pricing */}
+      {/* Pricing */}
       <section className="py-24 px-6" style={{ backgroundColor: "#1a1a1a" }}>
-        <div className="max-w-lg mx-auto text-center">
+        <div className="max-w-4xl mx-auto">
           <Reveal>
-            <h2 className="font-sans font-bold text-3xl md:text-4xl text-white mb-14 tracking-[-0.02em]">
+            <h2 className="font-sans font-bold text-3xl md:text-4xl text-white text-center mb-3 tracking-[-0.02em]">
               simple pricing. no surprises.
             </h2>
-          </Reveal>
-          <Reveal delay={150}>
-            <div
-              className="rounded-xl p-8 text-left"
-              style={{ backgroundColor: "#242424", border: "1px solid #1A6B3C" }}
-            >
-              <span
-                className="font-mono text-[10px] font-medium tracking-[0.18em] uppercase px-3 py-1 rounded-sm"
-                style={{ backgroundColor: "rgba(26, 107, 60, 0.15)", color: "#1A6B3C" }}
-              >
-                founding member
-              </span>
-              <p className="font-sans font-bold text-4xl text-white mt-5 mb-6">
-                ₦3,500<span className="font-sans font-normal text-lg" style={{ color: "#6B6560" }}>/mo</span>
-              </p>
-              <ul className="space-y-3 mb-8">
-                {[
-                  "unlimited invoices",
-                  "automatic email reminders",
-                  "WhatsApp follow-ups",
-                  "invoice PDF generation",
-                  "cancel anytime",
-                ].map((f) => (
-                  <li key={f} className="flex items-center gap-3">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <path d="M3 8L6.5 11.5L13 5" stroke="#1A6B3C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                    <span className="font-sans text-sm text-white">{f}</span>
-                  </li>
-                ))}
-              </ul>
-              <button
-                onClick={() => setWaitlistOpen(true)}
-                className="block w-full text-center font-sans text-sm font-semibold px-8 py-4 rounded-full text-white transition-transform hover:scale-[1.02] active:scale-[0.97]"
-                style={{ backgroundColor: "#1A6B3C" }}
-              >
-                claim your spot
-              </button>
-            </div>
-          </Reveal>
-          <Reveal delay={300}>
-            <p className="font-mono text-xs mt-6 tracking-wide" style={{ color: "#6B6560" }}>
-              first 50 members only. lock in this rate forever.
+            <p className="font-sans text-sm text-center mb-14" style={{ color: "#888" }}>
+              pick what fits. cancel anytime.
             </p>
           </Reveal>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-3xl mx-auto">
+            {/* Basic */}
+            <Reveal delay={100}>
+              <div
+                className="rounded-xl p-7 h-full flex flex-col"
+                style={{ backgroundColor: "#242424", border: "1px solid #333" }}
+              >
+                <span
+                  className="font-mono text-[10px] font-medium tracking-[0.18em] uppercase px-2.5 py-1 rounded-sm self-start"
+                  style={{ backgroundColor: "rgba(255,255,255,0.05)", color: "#ccc" }}
+                >
+                  BASIC
+                </span>
+                <p className="font-sans font-bold text-4xl text-white mt-5 mb-6">
+                  ₦2,500<span className="font-sans font-normal text-lg" style={{ color: "#6B6560" }}>/mo</span>
+                </p>
+                <ul className="space-y-3 mb-8 flex-1">
+                  {[
+                    "Unlimited invoices",
+                    "Automatic email reminders",
+                    "Invoice PDF generation",
+                    "Cancel anytime",
+                  ].map((f) => (
+                    <li key={f} className="flex items-center gap-3">
+                      <Check />
+                      <span className="font-sans text-sm text-white">{f}</span>
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  onClick={() => goToSignup("basic")}
+                  className="w-full font-sans text-sm font-semibold px-8 py-3.5 rounded-full transition-transform hover:scale-[1.02] active:scale-[0.97]"
+                  style={{ border: "1px solid #1A6B3C", color: "#fff", backgroundColor: "transparent" }}
+                >
+                  Get started
+                </button>
+              </div>
+            </Reveal>
+
+            {/* Pro */}
+            <Reveal delay={200}>
+              <div className="relative h-full">
+                <span
+                  className="absolute -top-3 left-1/2 -translate-x-1/2 font-mono text-[9px] font-bold tracking-[0.18em] uppercase px-3 py-1 rounded-sm whitespace-nowrap z-10"
+                  style={{ backgroundColor: "#1A6B3C", color: "#fff" }}
+                >
+                  MOST POPULAR
+                </span>
+                <div
+                  className="rounded-xl p-7 h-full flex flex-col"
+                  style={{
+                    backgroundColor: "#242424",
+                    border: "1px solid #1A6B3C",
+                    boxShadow: "0 0 30px rgba(26,107,60,0.15)",
+                  }}
+                >
+                  <span
+                    className="font-mono text-[10px] font-medium tracking-[0.18em] uppercase px-2.5 py-1 rounded-sm self-start"
+                    style={{ backgroundColor: "rgba(26,107,60,0.18)", color: "#1A6B3C" }}
+                  >
+                    PRO
+                  </span>
+                  <p className="font-sans font-bold text-4xl text-white mt-5 mb-6">
+                    ₦3,500<span className="font-sans font-normal text-lg" style={{ color: "#6B6560" }}>/mo</span>
+                  </p>
+                  <ul className="space-y-3 mb-8 flex-1">
+                    {[
+                      "Everything in Basic",
+                      "WhatsApp reminders",
+                      "Priority support",
+                    ].map((f) => (
+                      <li key={f} className="flex items-center gap-3">
+                        <Check />
+                        <span className="font-sans text-sm text-white">{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <button
+                    onClick={() => goToSignup("pro")}
+                    className="w-full font-sans text-sm font-semibold px-8 py-3.5 rounded-full text-white transition-transform hover:scale-[1.02] active:scale-[0.97]"
+                    style={{ backgroundColor: "#1A6B3C" }}
+                  >
+                    Get Pro
+                  </button>
+                </div>
+              </div>
+            </Reveal>
+          </div>
         </div>
       </section>
 
