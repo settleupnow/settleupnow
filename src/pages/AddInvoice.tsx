@@ -141,6 +141,11 @@ export default function AddInvoice() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (subStatus !== "active" && invoiceCount >= FREE_INVOICE_LIMIT) {
+      trigger("warning");
+      setPaywall(`Free plan is limited to ${FREE_INVOICE_LIMIT} invoices.`);
+      return;
+    }
     if (!clientName || !clientEmail || !dueDate || lineItems.some(li => !li.description || li.unit_price <= 0)) {
       trigger("error");
       toast.error("Please fill in all required fields and line items.");
