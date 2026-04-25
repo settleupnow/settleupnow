@@ -102,10 +102,15 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        "pulse-naira": {
+          "0%, 100%": { opacity: "1", textShadow: "0 0 0 hsl(var(--primary) / 0)" },
+          "50%": { opacity: "0.85", textShadow: "0 0 12px hsl(var(--primary) / 0.45)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "pulse-naira": "pulse-naira 2.4s ease-in-out infinite",
       },
     },
   },
