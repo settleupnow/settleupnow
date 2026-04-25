@@ -99,9 +99,16 @@ export default function Dashboard() {
   return (
     <div className="space-y-5">
       <WelcomeModal />
+      <PlanSelectionModal
+        autoShowForFree
+        allowContinueFree
+        title="choose your plan."
+        subtitle="pick what fits how you work — or continue on free."
+      />
+      <PaywallModal open={paywall !== null} onClose={() => setPaywall(null)} reason={paywall ?? undefined} />
       <div className="flex items-center justify-between">
         <h1 className="type-h1">Dashboard</h1>
-        <Button asChild size="sm" onClick={() => trigger("light")}>
+        <Button asChild size="sm" onClick={handleNewInvoice}>
           <Link to="/app/add">
             <AddCircleLine className="h-4 w-4 mr-1" /> New Invoice
           </Link>
