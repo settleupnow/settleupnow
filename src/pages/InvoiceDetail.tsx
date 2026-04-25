@@ -24,6 +24,8 @@ export default function InvoiceDetail() {
   const [editing, setEditing] = useState(false);
   const [sending, setSending] = useState(false);
   const [sendingInvoice, setSendingInvoice] = useState(false);
+  const { status: subStatus } = useSubscription();
+  const [paywall, setPaywall] = useState<string | null>(null);
 
   useEffect(() => {
     Promise.all([
