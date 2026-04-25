@@ -190,7 +190,7 @@ export default function Dashboard() {
               Start by adding your first client.
             </p>
           </div>
-          <Button asChild onClick={() => trigger("light")}>
+          <Button asChild onClick={handleNewInvoice}>
             <Link to="/app/add">
               <AddCircleLine className="h-4 w-4 mr-1" /> New Invoice
             </Link>
