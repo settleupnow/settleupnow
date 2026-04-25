@@ -80,6 +80,7 @@ export default function InvoiceDetail() {
       return;
     }
     trigger("warning");
+    setSending(true);
     try {
       const { data: result, error } = await supabase.functions.invoke("send-manual-reminder", {
         body: { invoice_id: id },
