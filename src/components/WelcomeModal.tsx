@@ -4,23 +4,23 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/compone
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { trigger } from "@/lib/haptics";
-import { HandshakeLine, FileAddLine, ChatSmile2Line } from "@mingcute/react";
+import { SparklesLine, FileLine, ChatLine } from "@mingcute/react";
 
 const STORAGE_KEY = "settleup_welcome_seen";
 
 const slides = [
   {
-    icon: HandshakeLine,
+    icon: SparklesLine,
     title: "Welcome to SettleUp",
     subtitle: "Automated invoice follow-up, so you don't have to chase.",
   },
   {
-    icon: FileAddLine,
+    icon: FileLine,
     title: "Add your invoices",
     subtitle: "Create an invoice for any client and set a due date.",
   },
   {
-    icon: ChatSmile2Line,
+    icon: ChatLine,
     title: "We handle the reminders",
     subtitle:
       "SettleUp sends automatic WhatsApp and email reminders so you get paid without the awkward follow-ups.",
