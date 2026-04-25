@@ -8,7 +8,12 @@ import { AddCircleLine, FileLine, Loading3Line } from "@mingcute/react";
 import { Button } from "@/components/ui/button";
 import { trigger } from "@/lib/haptics";
 import { WelcomeModal } from "@/components/WelcomeModal";
+import { PlanSelectionModal } from "@/components/PlanSelectionModal";
+import { PaywallModal } from "@/components/PaywallModal";
+import { useSubscription } from "@/hooks/useSubscription";
 import { cn } from "@/lib/utils";
+
+const FREE_INVOICE_LIMIT = 3;
 
 type FilterTab = "all" | "overdue" | "settled";
 
