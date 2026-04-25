@@ -11,6 +11,8 @@ import { toast } from "sonner";
 import { InvoiceEditForm } from "@/components/InvoiceEditForm";
 import { trigger } from "@/lib/haptics";
 import { supabase } from "@/lib/supabase";
+import { useSubscription } from "@/hooks/useSubscription";
+import { PaywallModal } from "@/components/PaywallModal";
 
 export default function InvoiceDetail() {
   const { id } = useParams<{ id: string }>();
