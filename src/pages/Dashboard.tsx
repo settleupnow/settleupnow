@@ -7,6 +7,7 @@ import { StatusChip } from "@/components/StatusChip";
 import { AddCircleLine, FileLine, Loading3Line } from "@mingcute/react";
 import { Button } from "@/components/ui/button";
 import { trigger } from "@/lib/haptics";
+import { WelcomeModal } from "@/components/WelcomeModal";
 
 export default function Dashboard() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
@@ -50,6 +51,7 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
+      <WelcomeModal />
       <div className="flex items-center justify-between">
         <h1 className="type-h1">Dashboard</h1>
         <Button asChild size="sm" onClick={() => trigger("light")}>
