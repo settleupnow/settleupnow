@@ -74,8 +74,12 @@ export default function InvoiceDetail() {
   }
 
   async function handleSendReminder() {
+    if (subStatus !== "active") {
+      trigger("warning");
+      setPaywall("Sending manual reminders requires a paid plan.");
+      return;
+    }
     trigger("warning");
-    setSending(true);
     try {
       const { data: result, error } = await supabase.functions.invoke("send-manual-reminder", {
         body: { invoice_id: id },
