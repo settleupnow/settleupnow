@@ -21,7 +21,7 @@ export default function Dashboard() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<FilterTab>("all");
-  const { status: subStatus, loading: subLoading } = useSubscription();
+  const { status: subStatus } = useSubscription();
   const [paywall, setPaywall] = useState<string | null>(null);
 
   useEffect(() => {
