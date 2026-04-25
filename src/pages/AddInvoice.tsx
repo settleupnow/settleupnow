@@ -94,6 +94,13 @@ export default function AddInvoice() {
   const [lineItems, setLineItems] = useState<LineItemDraft[]>([
     { description: "", quantity: 1, unit_price: 0 },
   ]);
+  const { status: subStatus } = useSubscription();
+  const [paywall, setPaywall] = useState<string | null>(null);
+  const [invoiceCount, setInvoiceCount] = useState(0);
+
+  useEffect(() => {
+    getInvoices().then((inv) => setInvoiceCount(inv.length));
+  }, []);
 
   useEffect(() => {
     getNextInvoiceNumber().then(setInvoiceNumber);
