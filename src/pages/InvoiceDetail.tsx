@@ -154,6 +154,7 @@ export default function InvoiceDetail() {
 
   return (
     <div className="space-y-6">
+      <PaywallModal open={paywall !== null} onClose={() => setPaywall(null)} reason={paywall ?? undefined} />
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" asChild>
           <Link to="/app"><ArrowLeftLine className="h-5 w-5" /></Link>
