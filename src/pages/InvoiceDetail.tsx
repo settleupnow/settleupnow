@@ -11,6 +11,8 @@ import { toast } from "sonner";
 import { InvoiceEditForm } from "@/components/InvoiceEditForm";
 import { trigger } from "@/lib/haptics";
 import { supabase } from "@/lib/supabase";
+import { useSubscription } from "@/hooks/useSubscription";
+import { PaywallModal } from "@/components/PaywallModal";
 
 export default function InvoiceDetail() {
   const { id } = useParams<{ id: string }>();
@@ -22,6 +24,8 @@ export default function InvoiceDetail() {
   const [editing, setEditing] = useState(false);
   const [sending, setSending] = useState(false);
   const [sendingInvoice, setSendingInvoice] = useState(false);
+  const { status: subStatus } = useSubscription();
+  const [paywall, setPaywall] = useState<string | null>(null);
 
   useEffect(() => {
     Promise.all([
@@ -70,6 +74,11 @@ export default function InvoiceDetail() {
   }
 
   async function handleSendReminder() {
+    if (subStatus !== "active") {
+      trigger("warning");
+      setPaywall("Sending manual reminders requires a paid plan.");
+      return;
+    }
     trigger("warning");
     setSending(true);
     try {
@@ -145,6 +154,7 @@ export default function InvoiceDetail() {
 
   return (
     <div className="space-y-6">
+      <PaywallModal open={paywall !== null} onClose={() => setPaywall(null)} reason={paywall ?? undefined} />
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" asChild>
           <Link to="/app"><ArrowLeftLine className="h-5 w-5" /></Link>

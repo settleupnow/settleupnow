@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { addInvoice, addLineItems, getNextInvoiceNumber, getClients, upsertClient, getBusinessProfile } from "@/lib/store";
+import { addInvoice, addLineItems, getNextInvoiceNumber, getClients, upsertClient, getBusinessProfile, getInvoices } from "@/lib/store";
 import { LineItem, Client } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,10 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { trigger } from "@/lib/haptics";
+import { useSubscription } from "@/hooks/useSubscription";
+import { PaywallModal } from "@/components/PaywallModal";
+
+const FREE_INVOICE_LIMIT = 3;
 
 interface LineItemDraft {
   description: string;
@@ -90,6 +94,13 @@ export default function AddInvoice() {
   const [lineItems, setLineItems] = useState<LineItemDraft[]>([
     { description: "", quantity: 1, unit_price: 0 },
   ]);
+  const { status: subStatus } = useSubscription();
+  const [paywall, setPaywall] = useState<string | null>(null);
+  const [invoiceCount, setInvoiceCount] = useState(0);
+
+  useEffect(() => {
+    getInvoices().then((inv) => setInvoiceCount(inv.length));
+  }, []);
 
   useEffect(() => {
     getNextInvoiceNumber().then(setInvoiceNumber);
@@ -130,6 +141,11 @@ export default function AddInvoice() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (subStatus !== "active" && invoiceCount >= FREE_INVOICE_LIMIT) {
+      trigger("warning");
+      setPaywall(`Free plan is limited to ${FREE_INVOICE_LIMIT} invoices.`);
+      return;
+    }
     if (!clientName || !clientEmail || !dueDate || lineItems.some(li => !li.description || li.unit_price <= 0)) {
       trigger("error");
       toast.error("Please fill in all required fields and line items.");
@@ -193,6 +209,7 @@ export default function AddInvoice() {
 
   return (
     <div className="space-y-6">
+      <PaywallModal open={paywall !== null} onClose={() => setPaywall(null)} reason={paywall ?? undefined} />
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" asChild>
           <Link to="/app"><ArrowLeftLine className="h-5 w-5" /></Link>

@@ -8,7 +8,12 @@ import { AddCircleLine, FileLine, Loading3Line } from "@mingcute/react";
 import { Button } from "@/components/ui/button";
 import { trigger } from "@/lib/haptics";
 import { WelcomeModal } from "@/components/WelcomeModal";
+import { PlanSelectionModal } from "@/components/PlanSelectionModal";
+import { PaywallModal } from "@/components/PaywallModal";
+import { useSubscription } from "@/hooks/useSubscription";
 import { cn } from "@/lib/utils";
+
+const FREE_INVOICE_LIMIT = 3;
 
 type FilterTab = "all" | "overdue" | "settled";
 
@@ -16,6 +21,8 @@ export default function Dashboard() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<FilterTab>("all");
+  const { status: subStatus } = useSubscription();
+  const [paywall, setPaywall] = useState<string | null>(null);
 
   useEffect(() => {
     getInvoices().then((data) => {
@@ -23,6 +30,19 @@ export default function Dashboard() {
       setLoading(false);
     });
   }, []);
+
+  const isFree = subStatus !== "active";
+  const overFreeLimit = isFree && invoices.length >= FREE_INVOICE_LIMIT;
+
+  const handleNewInvoice = (e: React.MouseEvent) => {
+    if (overFreeLimit) {
+      e.preventDefault();
+      trigger("warning");
+      setPaywall(`Free plan is limited to ${FREE_INVOICE_LIMIT} invoices.`);
+    } else {
+      trigger("light");
+    }
+  };
 
   const totalOutstanding = invoices
     .filter((i) => i.status !== "paid")
@@ -79,9 +99,16 @@ export default function Dashboard() {
   return (
     <div className="space-y-5">
       <WelcomeModal />
+      <PlanSelectionModal
+        autoShowForFree
+        allowContinueFree
+        title="choose your plan."
+        subtitle="pick what fits how you work — or continue on free."
+      />
+      <PaywallModal open={paywall !== null} onClose={() => setPaywall(null)} reason={paywall ?? undefined} />
       <div className="flex items-center justify-between">
         <h1 className="type-h1">Dashboard</h1>
-        <Button asChild size="sm" onClick={() => trigger("light")}>
+        <Button asChild size="sm" onClick={handleNewInvoice}>
           <Link to="/app/add">
             <AddCircleLine className="h-4 w-4 mr-1" /> New Invoice
           </Link>
@@ -163,7 +190,7 @@ export default function Dashboard() {
               Start by adding your first client.
             </p>
           </div>
-          <Button asChild onClick={() => trigger("light")}>
+          <Button asChild onClick={handleNewInvoice}>
             <Link to="/app/add">
               <AddCircleLine className="h-4 w-4 mr-1" /> New Invoice
             </Link>
