@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { addInvoice, addLineItems, getNextInvoiceNumber, getClients, upsertClient, getBusinessProfile } from "@/lib/store";
+import { addInvoice, addLineItems, getNextInvoiceNumber, getClients, upsertClient, getBusinessProfile, getInvoices } from "@/lib/store";
 import { LineItem, Client } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,10 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { trigger } from "@/lib/haptics";
+import { useSubscription } from "@/hooks/useSubscription";
+import { PaywallModal } from "@/components/PaywallModal";
+
+const FREE_INVOICE_LIMIT = 3;
 
 interface LineItemDraft {
   description: string;
