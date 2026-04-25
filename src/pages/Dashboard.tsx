@@ -21,6 +21,8 @@ export default function Dashboard() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<FilterTab>("all");
+  const { status: subStatus, loading: subLoading } = useSubscription();
+  const [paywall, setPaywall] = useState<string | null>(null);
 
   useEffect(() => {
     getInvoices().then((data) => {
@@ -28,6 +30,19 @@ export default function Dashboard() {
       setLoading(false);
     });
   }, []);
+
+  const isFree = subStatus !== "active";
+  const overFreeLimit = isFree && invoices.length >= FREE_INVOICE_LIMIT;
+
+  const handleNewInvoice = (e: React.MouseEvent) => {
+    if (overFreeLimit) {
+      e.preventDefault();
+      trigger("warning");
+      setPaywall(`Free plan is limited to ${FREE_INVOICE_LIMIT} invoices.`);
+    } else {
+      trigger("light");
+    }
+  };
 
   const totalOutstanding = invoices
     .filter((i) => i.status !== "paid")
