@@ -1,6 +1,7 @@
 import { PlanCards } from "./PlanCards";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 interface PlanSelectionModalProps {
   /** Title shown at top */
