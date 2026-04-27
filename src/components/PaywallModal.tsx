@@ -1,5 +1,6 @@
 import { PlanCards } from "./PlanCards";
 import { useSubscription } from "@/hooks/useSubscription";
+import { createPortal } from "react-dom";
 
 interface PaywallModalProps {
   open: boolean;
