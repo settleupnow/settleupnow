@@ -54,7 +54,7 @@ export function PlanSelectionModal({
     onClose?.();
   };
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[200] flex items-center justify-center px-4 py-8 overflow-y-auto" style={{ backgroundColor: "rgba(0,0,0,0.85)" }}>
       <div
         className="relative w-full max-w-2xl rounded-2xl p-6 sm:p-8 my-auto"
@@ -79,6 +79,7 @@ export function PlanSelectionModal({
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
