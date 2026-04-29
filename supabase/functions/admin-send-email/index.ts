@@ -22,25 +22,15 @@ Deno.serve(async (req) => {
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_ANON_KEY")!,
-      { global: { headers: { Authorization: authHeader } } }
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
     const token = authHeader.replace("Bearer ", "");
     const { data: { user }, error: userError } = await supabase.auth.getUser(token);
-    
-    if (userError || !user) {
-      return new Response(JSON.stringify({ error: "Invalid authentication token" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
 
-    // Check if user is admin
-    const isAdmin = user.user_metadata?.is_admin === true;
-    if (!isAdmin) {
-      return new Response(JSON.stringify({ error: "Forbidden: Admin access required" }), {
-        status: 403,
+    if (userError || !user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -73,29 +63,7 @@ Deno.serve(async (req) => {
 
     if (!res.ok) {
       const err = await res.text();
-      // If settleup.ng is not verified, fall back to onboarding@resend.dev for testing/safety
-      if (err.includes("domain not verified") || err.includes("not authorized")) {
-        console.warn("Domain not verified, falling back to resend default");
-        const fallbackRes = await fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${resendKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            from: "SettleUp <onboarding@resend.dev>",
-            to: [to],
-            subject: subject,
-            text: body,
-          }),
-        });
-        if (!fallbackRes.ok) {
-          const fallbackErr = await fallbackRes.text();
-          throw new Error(`Resend error: ${fallbackErr}`);
-        }
-      } else {
-        throw new Error(`Resend error: ${err}`);
-      }
+      throw new Error(`Resend error: ${err}`);
     }
 
     return new Response(JSON.stringify({ success: true }), {

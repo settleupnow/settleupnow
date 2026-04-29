@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { getPublicBlogPost } from "@/lib/store";
 import { BlogPost as IBlogPost } from "@/lib/types";
 import settleupLogo from "@/assets/settleup-logo.svg";
@@ -104,7 +105,7 @@ export default function BlogPost() {
           prose-blockquote:border-l-4 prose-blockquote:border-[#1A6B3C] prose-blockquote:bg-[#E8F5EE] prose-blockquote:px-8 prose-blockquote:py-2 prose-blockquote:italic prose-blockquote:text-[#1a1a1a]
           prose-img:rounded-xl prose-img:border prose-img:border-[#D8D0C4]
         ">
-          <ReactMarkdown children={post.content} />
+          <ReactMarkdown remarkPlugins={[remarkGfm]} children={post.content} />
         </div>
       </article>
 

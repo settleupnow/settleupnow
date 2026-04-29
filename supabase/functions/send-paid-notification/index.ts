@@ -22,8 +22,7 @@ Deno.serve(async (req) => {
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_ANON_KEY")!,
-      { global: { headers: { Authorization: authHeader } } }
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
     const token = authHeader.replace("Bearer ", "");
@@ -100,8 +99,11 @@ Deno.serve(async (req) => {
               <!-- Emoji -->
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                 <tr>
-                  <td style="text-align:center;padding-bottom:24px;font-size:48px;">
-                    🎉
+                  <td style="text-align:center;padding-bottom:24px;">
+                    <picture>
+                      <source srcset="https://fonts.gstatic.com/s/e/notoemoji/latest/1f389/512.webp" type="image/webp">
+                      <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f389/512.gif" alt="🎉" width="80" height="80" style="display:inline-block;">
+                    </picture>
                   </td>
                 </tr>
               </table>

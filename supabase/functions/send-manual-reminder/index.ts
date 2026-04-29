@@ -80,7 +80,7 @@ Deno.serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "SettleUp <onboarding@resend.dev>",
+        from: "SettleUp <noreply@settleup.ng>",
         to: [invoice.client_email],
         subject,
         text: body,
