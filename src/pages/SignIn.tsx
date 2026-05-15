@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useId } from "react";
+import { Helmet } from "react-helmet-async";
 import { supabase } from "@/lib/supabase";
 import { Link, useNavigate } from "react-router-dom";
 import { Loading3Line } from "@mingcute/react";
@@ -11,6 +12,9 @@ export default function SignIn() {
   const [loading, setLoading] = useState(false);
   const [isForgot, setIsForgot] = useState(false);
   const navigate = useNavigate();
+  const emailId = useId();
+  const passwordId = useId();
+  const forgotEmailId = useId();
 
   async function handleForgotPassword(e: React.FormEvent) {
     e.preventDefault();
