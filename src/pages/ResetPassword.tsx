@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useId } from "react";
+import { Helmet } from "react-helmet-async";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +14,8 @@ export default function ResetPassword() {
   const [loading, setLoading] = useState(false);
   const [ready, setReady] = useState(false);
   const navigate = useNavigate();
+  const passwordId = useId();
+  const confirmId = useId();
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
@@ -71,18 +74,23 @@ export default function ResetPassword() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
+      <Helmet>
+        <title>Reset your password — SettleUp</title>
+        <meta name="description" content="Set a new password for your SettleUp account." />
+        <link rel="canonical" href="https://settleupnow.lovable.app/reset-password" />
+        <meta name="robots" content="noindex" />
+      </Helmet>
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center">
-          <h1 className="type-h1">
-            Settle<span className="text-primary">Up</span>
-          </h1>
-          <p className="type-body-small mt-1">Set your new password</p>
+          <h1 className="type-h1">Reset your password</h1>
+          <p className="type-body-small mt-1">Set a new password for your SettleUp account.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label>New Password</Label>
+            <Label htmlFor={passwordId}>New Password</Label>
             <Input
+              id={passwordId}
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -91,8 +99,9 @@ export default function ResetPassword() {
             />
           </div>
           <div className="space-y-2">
-            <Label>Confirm Password</Label>
+            <Label htmlFor={confirmId}>Confirm Password</Label>
             <Input
+              id={confirmId}
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
