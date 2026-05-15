@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useId } from "react";
+import { Helmet } from "react-helmet-async";
 import { supabase } from "@/lib/supabase";
 import { Link, useNavigate } from "react-router-dom";
 import { Loading3Line } from "@mingcute/react";
@@ -10,6 +11,8 @@ export default function SignUp() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const emailId = useId();
+  const passwordId = useId();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -40,6 +43,11 @@ export default function SignUp() {
           boxShadow: "0 0 40px rgba(26, 107, 60, 0.08)",
         }}
       >
+        <Helmet>
+          <title>Create your SettleUp account — get paid on time</title>
+          <meta name="description" content="Sign up for SettleUp and start automating invoice reminders by email and WhatsApp. Free to try." />
+          <link rel="canonical" href="https://settleupnow.lovable.app/sign-up" />
+        </Helmet>
         <div className="text-center space-y-1">
           <img src={settleupLogo} alt="SettleUp logo" className="h-10 mx-auto mb-4" style={{ filter: "brightness(0) invert(1)" }} />
           <h1 className="font-sans font-bold text-[28px] leading-tight text-white">let's get you paid.</h1>
@@ -48,8 +56,9 @@ export default function SignUp() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
-            <label className="font-sans text-xs font-medium text-gray-400">Email</label>
+            <label htmlFor={emailId} className="font-sans text-xs font-medium text-gray-400">Email</label>
             <input
+              id={emailId}
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -60,8 +69,9 @@ export default function SignUp() {
             />
           </div>
           <div className="space-y-1.5">
-            <label className="font-sans text-xs font-medium text-gray-400">Password</label>
+            <label htmlFor={passwordId} className="font-sans text-xs font-medium text-gray-400">Password</label>
             <input
+              id={passwordId}
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
