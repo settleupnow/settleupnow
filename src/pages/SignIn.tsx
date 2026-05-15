@@ -61,13 +61,21 @@ export default function SignIn() {
             boxShadow: "0 0 40px rgba(26, 107, 60, 0.08)",
           }}
         >
+          <Helmet>
+            <title>Reset password — SettleUp</title>
+            <meta name="description" content="Request a password reset link for your SettleUp account." />
+            <link rel="canonical" href="https://settleupnow.lovable.app/sign-in" />
+            <meta name="robots" content="noindex" />
+          </Helmet>
           <div className="text-center space-y-1">
             <img src={settleupLogo} alt="SettleUp logo" className="h-10 mx-auto mb-4" style={{ filter: "brightness(0) invert(1)" }} />
             <h1 className="font-sans font-bold text-2xl text-white">reset password.</h1>
             <p className="font-sans text-sm" style={{ color: "#888" }}>enter your email and we'll send a link.</p>
           </div>
           <form onSubmit={handleForgotPassword} className="space-y-4">
+            <label htmlFor={forgotEmailId} className="sr-only">Email</label>
             <input
+              id={forgotEmailId}
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
