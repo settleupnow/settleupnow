@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { Link, useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -39,6 +40,25 @@ export default function BlogPost() {
 
   return (
     <div className="min-h-screen font-sans bg-[#F5F0E8] selection:bg-[#1A6B3C] selection:text-white">
+      <Helmet>
+        <title>{`${post.title} — SettleUp Blog`}</title>
+        {post.excerpt && <meta name="description" content={post.excerpt} />}
+        <link rel="canonical" href={`https://settleupnow.lovable.app/blog/${post.slug}`} />
+        <meta property="og:type" content="article" />
+        <meta property="og:title" content={post.title} />
+        {post.excerpt && <meta property="og:description" content={post.excerpt} />}
+        <meta property="og:url" content={`https://settleupnow.lovable.app/blog/${post.slug}`} />
+        {post.cover_image_url && <meta property="og:image" content={post.cover_image_url} />}
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: post.title,
+          description: post.excerpt,
+          datePublished: post.created_at,
+          image: post.cover_image_url || undefined,
+          author: { "@type": "Organization", name: "SettleUp" },
+        })}</script>
+      </Helmet>
       {/* Nav */}
       <nav className="fixed top-0 inset-x-0 z-50 bg-[#1a1a1a] border-b border-[#333]">
         <div className="max-w-6xl mx-auto flex items-center justify-between px-6 h-16">
@@ -78,7 +98,9 @@ export default function BlogPost() {
                   <p className="text-xs text-[#6B6560]">Founding Member</p>
                </div>
             </div>
-            <button 
+            <button
+              type="button"
+              aria-label="Share article"
               onClick={() => {
                 navigator.clipboard.writeText(window.location.href);
                 alert("Link copied to clipboard!");
