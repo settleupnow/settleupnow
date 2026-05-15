@@ -41,7 +41,7 @@ export default function SignUp() {
         }}
       >
         <div className="text-center space-y-1">
-          <img src={settleupLogo} alt="SettleUp" className="h-10 mx-auto mb-4" style={{ filter: "brightness(0) invert(1)" }} />
+          <img src={settleupLogo} alt="SettleUp logo" className="h-10 mx-auto mb-4" style={{ filter: "brightness(0) invert(1)" }} />
           <h1 className="font-sans font-bold text-[28px] leading-tight text-white">let's get you paid.</h1>
           <p className="font-sans text-sm" style={{ color: "#888" }}>set up your account. it takes 30 seconds.</p>
         </div>

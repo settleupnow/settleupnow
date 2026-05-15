@@ -43,7 +43,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
         <header className="sticky top-0 z-40 border-b bg-card/80 backdrop-blur-md">
           <div className="container max-w-2xl mx-auto flex items-center justify-center h-14 px-4">
             <Link to="/app">
-              <img src={logo} alt="SettleUp" className="h-[22px] w-auto" />
+              <img src={logo} alt="SettleUp logo" className="h-[22px] w-auto" />
             </Link>
           </div>
         </header>
@@ -94,7 +94,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
       >
         <div className="px-6 pt-7 pb-8">
           <Link to="/app" className="inline-block">
-            <img src={logo} alt="SettleUp" className="h-7 w-auto" style={{ filter: "brightness(0) invert(1)" }} />
+            <img src={logo} alt="SettleUp logo" className="h-7 w-auto" style={{ filter: "brightness(0) invert(1)" }} />
           </Link>
         </div>
 

@@ -58,7 +58,7 @@ export default function SignIn() {
           }}
         >
           <div className="text-center space-y-1">
-            <img src={settleupLogo} alt="SettleUp" className="h-10 mx-auto mb-4" style={{ filter: "brightness(0) invert(1)" }} />
+            <img src={settleupLogo} alt="SettleUp logo" className="h-10 mx-auto mb-4" style={{ filter: "brightness(0) invert(1)" }} />
             <h1 className="font-sans font-bold text-2xl text-white">reset password.</h1>
             <p className="font-sans text-sm" style={{ color: "#888" }}>enter your email and we'll send a link.</p>
           </div>
@@ -102,7 +102,7 @@ export default function SignIn() {
         }}
       >
         <div className="text-center space-y-1">
-          <img src={settleupLogo} alt="SettleUp" className="h-10 mx-auto mb-4" style={{ filter: "brightness(0) invert(1)" }} />
+          <img src={settleupLogo} alt="SettleUp logo" className="h-10 mx-auto mb-4" style={{ filter: "brightness(0) invert(1)" }} />
           <h1 className="font-sans font-bold text-[28px] leading-tight text-white">welcome back.</h1>
           <p className="font-sans text-sm" style={{ color: "#888" }}>your invoices are waiting.</p>
         </div>

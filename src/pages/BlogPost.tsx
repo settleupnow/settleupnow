@@ -45,7 +45,7 @@ export default function BlogPost() {
           <Link to="/">
             <img
               src={settleupLogo}
-              alt="SettleUp"
+              alt="SettleUp logo"
               className="h-8 brightness-0 invert"
             />
           </Link>
@@ -124,7 +124,7 @@ export default function BlogPost() {
               get early access — it's free
             </Link>
             <div className="mt-20 border-t border-white/10 pt-10 flex flex-col md:flex-row items-center justify-between gap-6">
-               <img src={settleupLogo} alt="SettleUp" className="h-5 brightness-0 invert" />
+               <img src={settleupLogo} alt="SettleUp logo" className="h-5 brightness-0 invert" />
                <div className="flex gap-8">
                  <Link to="/" className="text-xs text-[#6B6560] hover:text-white transition-colors">home</Link>
                  <Link to="/blog" className="text-xs text-[#6B6560] hover:text-white transition-colors">blog</Link>
