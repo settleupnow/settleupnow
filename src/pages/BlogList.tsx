@@ -94,9 +94,9 @@ export default function BlogList() {
                   <p className="font-mono text-[10px] uppercase tracking-widest text-[#1A6B3C] mb-3">
                     {new Date(post.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                   </p>
-                  <h3 className="text-xl font-bold text-[#1a1a1a] mb-3 group-hover:text-[#1A6B3C] transition-colors line-clamp-2">
+                  <h2 className="text-xl font-bold text-[#1a1a1a] mb-3 group-hover:text-[#1A6B3C] transition-colors line-clamp-2">
                     {post.title}
-                  </h3>
+                  </h2>
                   <p className="text-sm text-[#666] line-clamp-3 mb-6 flex-1">
                     {post.excerpt || post.content.substring(0, 150).replace(/[#*`]/g, '') + "..."}
                   </p>
