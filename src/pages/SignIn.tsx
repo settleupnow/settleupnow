@@ -113,6 +113,11 @@ export default function SignIn() {
           boxShadow: "0 0 40px rgba(26, 107, 60, 0.08)",
         }}
       >
+        <Helmet>
+          <title>Sign in — SettleUp</title>
+          <meta name="description" content="Sign in to SettleUp to manage invoices and automated reminders." />
+          <link rel="canonical" href="https://settleupnow.lovable.app/sign-in" />
+        </Helmet>
         <div className="text-center space-y-1">
           <img src={settleupLogo} alt="SettleUp logo" className="h-10 mx-auto mb-4" style={{ filter: "brightness(0) invert(1)" }} />
           <h1 className="font-sans font-bold text-[28px] leading-tight text-white">welcome back.</h1>
@@ -121,8 +126,9 @@ export default function SignIn() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
-            <label className="font-sans text-xs font-medium text-gray-400">Email</label>
+            <label htmlFor={emailId} className="font-sans text-xs font-medium text-gray-400">Email</label>
             <input
+              id={emailId}
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -133,8 +139,9 @@ export default function SignIn() {
             />
           </div>
           <div className="space-y-1.5">
-            <label className="font-sans text-xs font-medium text-gray-400">Password</label>
+            <label htmlFor={passwordId} className="font-sans text-xs font-medium text-gray-400">Password</label>
             <input
+              id={passwordId}
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
