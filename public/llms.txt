@@ -1,0 +1,14 @@
+# SettleUp
+
+> Automated invoice follow-up for Nigerian freelancers. SettleUp sends reminders by email and WhatsApp so you get paid without the awkward follow-ups.
+
+## Pages
+
+- [Home](/): Product overview, pricing (Basic ₦2,500/mo, Pro ₦3,500/mo), and sign-up.
+- [Blog](/blog): Articles on getting paid, freelancing, and running a small business.
+- [Sign in](/sign-in): Existing customer sign in.
+- [Sign up](/sign-up): Create a SettleUp account.
+
+## Optional
+
+- [Reset password](/reset-password): Password recovery flow.
