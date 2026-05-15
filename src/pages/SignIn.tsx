@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useId } from "react";
+import { Helmet } from "react-helmet-async";
 import { supabase } from "@/lib/supabase";
 import { Link, useNavigate } from "react-router-dom";
 import { Loading3Line } from "@mingcute/react";
@@ -11,6 +12,9 @@ export default function SignIn() {
   const [loading, setLoading] = useState(false);
   const [isForgot, setIsForgot] = useState(false);
   const navigate = useNavigate();
+  const emailId = useId();
+  const passwordId = useId();
+  const forgotEmailId = useId();
 
   async function handleForgotPassword(e: React.FormEvent) {
     e.preventDefault();
@@ -57,13 +61,21 @@ export default function SignIn() {
             boxShadow: "0 0 40px rgba(26, 107, 60, 0.08)",
           }}
         >
+          <Helmet>
+            <title>Reset password — SettleUp</title>
+            <meta name="description" content="Request a password reset link for your SettleUp account." />
+            <link rel="canonical" href="https://settleupnow.lovable.app/sign-in" />
+            <meta name="robots" content="noindex" />
+          </Helmet>
           <div className="text-center space-y-1">
-            <img src={settleupLogo} alt="SettleUp" className="h-10 mx-auto mb-4" style={{ filter: "brightness(0) invert(1)" }} />
+            <img src={settleupLogo} alt="SettleUp logo" className="h-10 mx-auto mb-4" style={{ filter: "brightness(0) invert(1)" }} />
             <h1 className="font-sans font-bold text-2xl text-white">reset password.</h1>
             <p className="font-sans text-sm" style={{ color: "#888" }}>enter your email and we'll send a link.</p>
           </div>
           <form onSubmit={handleForgotPassword} className="space-y-4">
+            <label htmlFor={forgotEmailId} className="sr-only">Email</label>
             <input
+              id={forgotEmailId}
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -101,16 +113,22 @@ export default function SignIn() {
           boxShadow: "0 0 40px rgba(26, 107, 60, 0.08)",
         }}
       >
+        <Helmet>
+          <title>Sign in — SettleUp</title>
+          <meta name="description" content="Sign in to SettleUp to manage invoices and automated reminders." />
+          <link rel="canonical" href="https://settleupnow.lovable.app/sign-in" />
+        </Helmet>
         <div className="text-center space-y-1">
-          <img src={settleupLogo} alt="SettleUp" className="h-10 mx-auto mb-4" style={{ filter: "brightness(0) invert(1)" }} />
+          <img src={settleupLogo} alt="SettleUp logo" className="h-10 mx-auto mb-4" style={{ filter: "brightness(0) invert(1)" }} />
           <h1 className="font-sans font-bold text-[28px] leading-tight text-white">welcome back.</h1>
           <p className="font-sans text-sm" style={{ color: "#888" }}>your invoices are waiting.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
-            <label className="font-sans text-xs font-medium text-gray-400">Email</label>
+            <label htmlFor={emailId} className="font-sans text-xs font-medium text-gray-400">Email</label>
             <input
+              id={emailId}
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -121,8 +139,9 @@ export default function SignIn() {
             />
           </div>
           <div className="space-y-1.5">
-            <label className="font-sans text-xs font-medium text-gray-400">Password</label>
+            <label htmlFor={passwordId} className="font-sans text-xs font-medium text-gray-400">Password</label>
             <input
+              id={passwordId}
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}

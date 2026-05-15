@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { getPublicBlogPosts } from "@/lib/store";
 import { BlogPost } from "@/lib/types";
@@ -15,6 +16,22 @@ export default function BlogList() {
 
   return (
     <div className="min-h-screen font-sans bg-[#F5F0E8]">
+      <Helmet>
+        <title>The SettleUp Blog — getting paid, building businesses</title>
+        <meta name="description" content="Tips, stories, and deep dives for modern freelancers and business owners on getting paid on time and running a small business." />
+        <link rel="canonical" href="https://settleupnow.lovable.app/blog" />
+        <meta property="og:title" content="The SettleUp Blog" />
+        <meta property="og:description" content="Tips, stories, and deep dives for modern freelancers and business owners." />
+        <meta property="og:url" content="https://settleupnow.lovable.app/blog" />
+        <meta property="og:type" content="website" />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          name: "The SettleUp Blog",
+          url: "https://settleupnow.lovable.app/blog",
+          description: "Tips, stories, and deep dives for modern freelancers and business owners.",
+        })}</script>
+      </Helmet>
       {/* Nav - simple version matching landing */}
       <nav className="fixed top-0 inset-x-0 z-50 bg-[#1a1a1a] border-b border-[#333]">
         <div className="max-w-6xl mx-auto flex items-center justify-between px-6 h-16">
@@ -77,9 +94,9 @@ export default function BlogList() {
                   <p className="font-mono text-[10px] uppercase tracking-widest text-[#1A6B3C] mb-3">
                     {new Date(post.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                   </p>
-                  <h3 className="text-xl font-bold text-[#1a1a1a] mb-3 group-hover:text-[#1A6B3C] transition-colors line-clamp-2">
+                  <h2 className="text-xl font-bold text-[#1a1a1a] mb-3 group-hover:text-[#1A6B3C] transition-colors line-clamp-2">
                     {post.title}
-                  </h3>
+                  </h2>
                   <p className="text-sm text-[#666] line-clamp-3 mb-6 flex-1">
                     {post.excerpt || post.content.substring(0, 150).replace(/[#*`]/g, '') + "..."}
                   </p>
