@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { Link, useNavigate } from "react-router-dom";
 import settleupLogo from "@/assets/settleup-logo.svg";
 
@@ -61,6 +62,11 @@ export default function LandingPage() {
 
   return (
     <div className="font-sans">
+      <Helmet>
+        <title>SettleUp — Automated invoice follow-up for freelancers</title>
+        <meta name="description" content="Stop chasing clients. SettleUp sends automatic email and WhatsApp invoice reminders so Nigerian freelancers get paid on time." />
+        <link rel="canonical" href="https://settleupnow.lovable.app/" />
+      </Helmet>
       {/* Nav */}
       <nav
         className="fixed top-0 inset-x-0 z-50 transition-colors duration-300"
