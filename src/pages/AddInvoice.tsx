@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { trigger } from "@/lib/haptics";
 import { useSubscription } from "@/hooks/useSubscription";
+import { PAYMENTS_ENFORCED } from "@/lib/entitlements";
 import { PaywallModal } from "@/components/PaywallModal";
 
 const FREE_INVOICE_LIMIT = 3;
@@ -141,7 +142,7 @@ export default function AddInvoice() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (subStatus !== "active" && invoiceCount >= FREE_INVOICE_LIMIT) {
+    if (PAYMENTS_ENFORCED && subStatus !== "active" && invoiceCount >= FREE_INVOICE_LIMIT) {
       trigger("warning");
       setPaywall(`Free plan is limited to ${FREE_INVOICE_LIMIT} invoices.`);
       return;

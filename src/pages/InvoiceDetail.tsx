@@ -12,6 +12,7 @@ import { InvoiceEditForm } from "@/components/InvoiceEditForm";
 import { trigger } from "@/lib/haptics";
 import { supabase } from "@/lib/supabase";
 import { useSubscription } from "@/hooks/useSubscription";
+import { PAYMENTS_ENFORCED } from "@/lib/entitlements";
 import { PaywallModal } from "@/components/PaywallModal";
 
 export default function InvoiceDetail() {
@@ -74,7 +75,7 @@ export default function InvoiceDetail() {
   }
 
   async function handleSendReminder() {
-    if (subStatus !== "active") {
+    if (PAYMENTS_ENFORCED && subStatus !== "active") {
       trigger("warning");
       setPaywall("Sending manual reminders requires a paid plan.");
       return;
@@ -115,9 +116,7 @@ export default function InvoiceDetail() {
 
       const { data: result, error } = await supabase.functions.invoke("send-invoice", {
         body: {
-          to: invoice!.client_email,
-          client_name: invoice!.client_name,
-          invoice_number: invoice!.invoice_number,
+          invoice_id: id,
           pdf_base64: base64,
         },
       });

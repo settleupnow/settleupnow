@@ -11,6 +11,7 @@ import { WelcomeModal } from "@/components/WelcomeModal";
 import { PlanSelectionModal } from "@/components/PlanSelectionModal";
 import { PaywallModal } from "@/components/PaywallModal";
 import { useSubscription } from "@/hooks/useSubscription";
+import { PAYMENTS_ENFORCED } from "@/lib/entitlements";
 import { cn } from "@/lib/utils";
 
 const FREE_INVOICE_LIMIT = 3;
@@ -31,8 +32,8 @@ export default function Dashboard() {
     });
   }, []);
 
-  const isFree = subStatus !== "active";
-  const overFreeLimit = isFree && invoices.length >= FREE_INVOICE_LIMIT;
+  const isFree = PAYMENTS_ENFORCED && subStatus !== "active";
+  const overFreeLimit = PAYMENTS_ENFORCED && isFree && invoices.length >= FREE_INVOICE_LIMIT;
 
   const handleNewInvoice = (e: React.MouseEvent) => {
     if (overFreeLimit) {
@@ -100,7 +101,7 @@ export default function Dashboard() {
     <div className="space-y-5">
       <WelcomeModal />
       <PlanSelectionModal
-        autoShowForFree
+        autoShowForFree={PAYMENTS_ENFORCED}
         allowContinueFree
         title="choose your plan."
         subtitle="pick what fits how you work — or continue on free."

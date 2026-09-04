@@ -1,24 +1,46 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+const ALLOWED_ORIGINS = (Deno.env.get("ALLOWED_ORIGINS") ??
+  "https://settleup.ng,https://www.settleup.ng,http://localhost:5173,http://localhost:3000")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+
+function corsHeaders(req: Request) {
+  const origin = req.headers.get("origin") ?? "";
+  const allow = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    "Access-Control-Allow-Origin": allow,
+    "Access-Control-Allow-Headers":
+      "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Vary": "Origin",
+  };
+}
+
+function json(req: Request, body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders(req), "Content-Type": "application/json" },
+  });
+}
+
+// 8 MB base64 cap (~6 MB binary) — generous for an invoice PDF, blocks relay abuse.
+const MAX_PDF_BASE64 = 8 * 1024 * 1024;
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: corsHeaders(req) });
+  }
+
+  if (req.method !== "POST") {
+    return json(req, { error: "Method not allowed" }, 405);
   }
 
   try {
-    // Validate JWT in code
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return json(req, { error: "Unauthorized" }, 401);
     }
 
     const supabase = createClient(
@@ -30,24 +52,54 @@ Deno.serve(async (req) => {
     const token = authHeader.replace("Bearer ", "");
     const { data: { user }, error: userError } = await supabase.auth.getUser(token);
     if (userError || !user) {
-      return new Response(JSON.stringify({ error: "Invalid authentication token" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return json(req, { error: "Invalid authentication token" }, 401);
     }
 
     const resendKey = Deno.env.get("RESEND_API_KEY");
     if (!resendKey) throw new Error("RESEND_API_KEY not set");
 
-    const { to, client_name, invoice_number, pdf_base64 } = await req.json();
+    const body = await req.json().catch(() => ({}));
+    const { invoice_id, pdf_base64 } = body as {
+      invoice_id?: string;
+      pdf_base64?: string;
+      // Legacy fields — ignored for addressing, kept for compat logging only.
+      to?: string;
+      client_name?: string;
+      invoice_number?: string;
+    };
 
-    if (!to || !pdf_base64) {
-      return new Response(
-        JSON.stringify({ error: "Missing required fields: to, pdf_base64" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    if (!invoice_id || typeof invoice_id !== "string") {
+      return json(req, { error: "Missing required field: invoice_id" }, 400);
+    }
+    if (!pdf_base64 || typeof pdf_base64 !== "string") {
+      return json(req, { error: "Missing required field: pdf_base64" }, 400);
+    }
+    if (pdf_base64.length > MAX_PDF_BASE64) {
+      return json(req, { error: "Attachment too large" }, 413);
     }
 
+    // Load the invoice through the caller's RLS-scoped client: proves ownership.
+    const { data: invoice, error: invError } = await supabase
+      .from("invoices")
+      .select("id, user_id, client_email, client_name, invoice_number, status")
+      .eq("id", invoice_id)
+      .single();
+
+    if (invError || !invoice) {
+      return json(req, { error: "Invoice not found" }, 404);
+    }
+    if (invoice.user_id !== user.id) {
+      return json(req, { error: "Invoice not found" }, 404);
+    }
+    if (!invoice.client_email) {
+      return json(req, { error: "Invoice has no client email" }, 400);
+    }
+    if (invoice.status === "paid") {
+      return json(req, { error: "Invoice already paid" }, 400);
+    }
+
+    // The recipient is ALWAYS the stored client email — never caller-supplied.
+    // This closes the arbitrary-email relay vector.
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -56,12 +108,12 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         from: "SettleUp <noreply@settleup.ng>",
-        to: [to],
-        subject: `Invoice ${invoice_number || ""} from SettleUp`,
-        text: `Hi ${client_name || ""},\n\nPlease find your invoice attached.\n\nThank you.`,
+        to: [invoice.client_email],
+        subject: `Invoice ${invoice.invoice_number || ""} from SettleUp`,
+        text: `Hi ${invoice.client_name || ""},\n\nPlease find your invoice attached.\n\nThank you.`,
         attachments: [
           {
-            filename: `invoice-${invoice_number || "document"}.pdf`,
+            filename: `invoice-${invoice.invoice_number || "document"}.pdf`,
             content: pdf_base64,
           },
         ],
@@ -74,14 +126,9 @@ Deno.serve(async (req) => {
     }
 
     const result = await res.json();
-    return new Response(JSON.stringify({ success: true, id: result.id }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return json(req, { success: true, id: result.id });
   } catch (err: unknown) {
     console.error(err);
-    return new Response(JSON.stringify({ error: err instanceof Error ? err.message : String(err) }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return json(req, { error: err instanceof Error ? err.message : String(err) }, 500);
   }
 });

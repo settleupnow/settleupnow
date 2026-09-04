@@ -1,10 +1,19 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-};
+function corsHeaders() {
+  return {
+    "Access-Control-Allow-Origin": Deno.env.get("ALLOWED_ORIGINS")?.split(",")[0]?.trim() ?? "https://settleup.ng",
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-cron-secret",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+  };
+}
+
+function json(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders(), "Content-Type": "application/json" },
+  });
+}
 
 const DEFAULT_EMAIL_TEMPLATE = {
   dueSoon: {
@@ -50,12 +59,16 @@ function getReminderType(diffDays: number): keyof typeof DEFAULT_EMAIL_TEMPLATE 
   return null;
 }
 
-async function sendEmail(
-  resendKey: string,
-  to: string,
-  subject: string,
-  body: string
-) {
+function sentToday(iso: string | null): boolean {
+  if (!iso) return false;
+  const d = new Date(iso);
+  const now = new Date();
+  return d.getFullYear() === now.getFullYear() &&
+    d.getMonth() === now.getMonth() &&
+    d.getDate() === now.getDate();
+}
+
+async function sendEmail(resendKey: string, to: string, subject: string, body: string) {
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -78,10 +91,23 @@ async function sendEmail(
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: corsHeaders() });
+  }
+
+  if (req.method !== "POST") {
+    return json({ error: "Method not allowed" }, 405);
   }
 
   try {
+    // CRON SECRET — never callable by browsers / anonymous discovery.
+    const expected = Deno.env.get("CRON_SECRET");
+    if (!expected) throw new Error("CRON_SECRET not set");
+    const provided = req.headers.get("x-cron-secret") ??
+      req.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
+    if (provided !== expected) {
+      return json({ error: "Unauthorized" }, 401);
+    }
+
     const resendKey = Deno.env.get("RESEND_API_KEY");
     if (!resendKey) throw new Error("RESEND_API_KEY not set");
 
@@ -100,6 +126,7 @@ Deno.serve(async (req) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     let sent = 0;
+    let skipped = 0;
 
     for (const inv of invoices || []) {
       const dueDate = new Date(inv.due_date);
@@ -108,7 +135,12 @@ Deno.serve(async (req) => {
 
       if (!reminderType || !inv.client_email) continue;
 
-      // Check for custom reminder template
+      // Idempotency: one automated send per invoice per day max.
+      if (sentToday(inv.last_reminder_sent)) {
+        skipped++;
+        continue;
+      }
+
       let customBody: string | null = null;
       if (inv.user_id) {
         const { data: profile } = await supabase
@@ -138,14 +170,9 @@ Deno.serve(async (req) => {
       sent++;
     }
 
-    return new Response(JSON.stringify({ success: true, sent }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return json({ success: true, sent, skipped });
   } catch (err: unknown) {
     console.error(err);
-    return new Response(JSON.stringify({ error: err instanceof Error ? err.message : String(err) }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return json({ error: err instanceof Error ? err.message : String(err) }, 500);
   }
 });

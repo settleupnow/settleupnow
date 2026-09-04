@@ -1,15 +1,27 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+const ALLOWED_ORIGINS = (Deno.env.get("ALLOWED_ORIGINS") ??
+  "https://settleup.ng,https://www.settleup.ng,http://localhost:5173,http://localhost:3000")
+  .split(",").map((s) => s.trim()).filter(Boolean);
+
+function corsHeaders(req: Request) {
+  const origin = req.headers.get("origin") ?? "";
+  const allow = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    "Access-Control-Allow-Origin": allow,
+    "Access-Control-Allow-Headers":
+      "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Vary": "Origin",
+  };
+}
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: corsHeaders(req) });
   }
+
+  const headers = { ...corsHeaders(req), "Content-Type": "application/json" };
 
   try {
     // Verify the caller is an admin via their JWT
@@ -17,7 +29,7 @@ Deno.serve(async (req) => {
     if (!authHeader?.startsWith("Bearer ")) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: headers,
       });
     }
 
@@ -37,7 +49,7 @@ Deno.serve(async (req) => {
       console.error("JWT validation failed:", userError);
       return new Response(JSON.stringify({ error: "Invalid authentication token" }), {
         status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: headers,
       });
     }
 
@@ -45,7 +57,7 @@ Deno.serve(async (req) => {
     if (!isAdmin) {
       return new Response(JSON.stringify({ error: "Forbidden" }), {
         status: 403,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: headers,
       });
     }
 
@@ -91,7 +103,7 @@ Deno.serve(async (req) => {
       }));
 
       return new Response(JSON.stringify({ users }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: headers,
       });
     }
 
@@ -115,7 +127,7 @@ Deno.serve(async (req) => {
       }));
 
       return new Response(JSON.stringify({ invoices: enriched }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: headers,
       });
     }
 
@@ -180,7 +192,7 @@ Deno.serve(async (req) => {
           waitlistCount: waitlistCount || 0,
           chartData,
         }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { headers: headers }
       );
     }
 
@@ -193,7 +205,7 @@ Deno.serve(async (req) => {
       if (error) throw error;
 
       return new Response(JSON.stringify({ waitlist }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: headers,
       });
     }
 
@@ -203,13 +215,13 @@ Deno.serve(async (req) => {
       if (!userId) {
         return new Response(JSON.stringify({ error: "userId required" }), {
           status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          headers: headers,
         });
       }
       const { error } = await adminClient.auth.admin.deleteUser(userId);
       if (error) throw error;
       return new Response(JSON.stringify({ success: true }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: headers,
       });
     }
 
@@ -219,24 +231,24 @@ Deno.serve(async (req) => {
       if (!id) {
         return new Response(JSON.stringify({ error: "id required" }), {
           status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          headers: headers,
         });
       }
       const { error } = await adminClient.from("waitlist").delete().eq("id", id);
       if (error) throw error;
       return new Response(JSON.stringify({ success: true }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: headers,
       });
     }
 
     return new Response(JSON.stringify({ error: "Invalid type parameter" }), {
       status: 400,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: headers,
     });
   } catch (err: unknown) {
     return new Response(JSON.stringify({ error: err instanceof Error ? err.message : String(err) }), {
       status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: headers,
     });
   }
 });

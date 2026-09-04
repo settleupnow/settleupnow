@@ -1,17 +1,25 @@
+[functions.send-manual-reminder]
+verify_jwt = true
+
+[functions.send-paid-notification]
+verify_jwt = true
+
+[functions.send-invoice]
+verify_jwt = true
+
+[functions.admin-data]
+verify_jwt = true
+
+[functions.admin-send-email]
+verify_jwt = true
+
+[functions.verify-payment]
+verify_jwt = true
+
+# Cron + webhook authenticate via CRON_SECRET / Paystack signature, not JWT.
 [functions.send-reminders]
 verify_jwt = false
 
-[functions.send-manual-reminder]
+[functions.paystack-webhook]
 verify_jwt = false
-
-[functions.send-invoice]
-verify_jwt = false
-
-[functions.admin-data]
-verify_jwt = false
-
-[functions.send-paid-notification]
-verify_jwt = false
-
-[functions.verify-payment]
-verify_jwt = false
+enforce_jwt = false

@@ -15,6 +15,7 @@ import ReminderMessageSettings from "@/pages/settings/ReminderMessage";
 import TaxComplianceSettings from "@/pages/settings/TaxCompliance";
 import NotificationPreferences from "@/pages/settings/NotificationPreferences";
 import { trigger } from "@/lib/haptics";
+import { PAYMENTS_ENFORCED } from "@/lib/entitlements";
 import { PaywallModal } from "@/components/PaywallModal";
 
 interface SettingsModalProps {
@@ -73,6 +74,11 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
   if (!open) return null;
 
   const handleGated = (target: Panel, requirePro = false) => {
+    // Testing: payments disabled — all panels open. Re-enable via entitlements flag.
+    if (!PAYMENTS_ENFORCED) {
+      setPanel(target);
+      return;
+    }
     // Free users only get Business Profile
     if (!isPaid && target !== "profile") {
       setPaywall(`${target} requires a paid plan`);

@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, useSearchParams } from "react-router-dom";
-import { supabase } from "@/lib/supabase";
+import { supabase, SUPABASE_ANON_KEY } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { StatusChip } from "@/components/StatusChip";
 import { formatCurrency } from "@/lib/format";
@@ -122,6 +122,7 @@ async function fetchAdmin(type: string, body?: object) {
     method: body ? "POST" : "GET",
     headers: {
       Authorization: `Bearer ${token}`,
+      apikey: SUPABASE_ANON_KEY,
       "Content-Type": "application/json",
     },
     ...(body
@@ -915,6 +916,7 @@ function EmailModal({ email, onClose }: { email: string | null; onClose: () => v
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,
+          "apikey": SUPABASE_ANON_KEY,
           "Content-Type": "application/json"
         },
         body: JSON.stringify({ to: email, subject, body })
