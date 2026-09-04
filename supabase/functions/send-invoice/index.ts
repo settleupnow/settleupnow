@@ -59,17 +59,23 @@ Deno.serve(async (req) => {
     if (!resendKey) throw new Error("RESEND_API_KEY not set");
 
     const body = await req.json().catch(() => ({}));
-    const { invoice_id, pdf_base64 } = body as {
+    const { invoice_id, invoice_number, pdf_base64 } = body as {
       invoice_id?: string;
+      // Legacy identifier — accepted for backward compatibility during rollout.
+      // Only ever used as a database lookup key scoped to the caller.
+      invoice_number?: string;
       pdf_base64?: string;
-      // Legacy fields — ignored for addressing, kept for compat logging only.
+      // Legacy addressing fields — parsed but NEVER used. The recipient and
+      // all invoice details always come from the database. Kept in the type
+      // so old clients keep parsing cleanly.
       to?: string;
       client_name?: string;
-      invoice_number?: string;
     };
 
-    if (!invoice_id || typeof invoice_id !== "string") {
-      return json(req, { error: "Missing required field: invoice_id" }, 400);
+    const hasId = typeof invoice_id === "string" && invoice_id !== "";
+    const hasNumber = typeof invoice_number === "string" && invoice_number !== "";
+    if (!hasId && !hasNumber) {
+      return json(req, { error: "Missing required field: invoice_id or invoice_number" }, 400);
     }
     if (!pdf_base64 || typeof pdf_base64 !== "string") {
       return json(req, { error: "Missing required field: pdf_base64" }, 400);
@@ -79,11 +85,14 @@ Deno.serve(async (req) => {
     }
 
     // Load the invoice through the caller's RLS-scoped client: proves ownership.
-    const { data: invoice, error: invError } = await supabase
+    // invoice_id wins when both identifiers are supplied.
+    let query = supabase
       .from("invoices")
-      .select("id, user_id, client_email, client_name, invoice_number, status")
-      .eq("id", invoice_id)
-      .single();
+      .select("id, user_id, client_email, client_name, invoice_number, status");
+    query = hasId
+      ? query.eq("id", invoice_id as string)
+      : query.eq("invoice_number", invoice_number as string);
+    const { data: invoice, error: invError } = await query.single();
 
     if (invError || !invoice) {
       return json(req, { error: "Invoice not found" }, 404);

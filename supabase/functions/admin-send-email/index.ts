@@ -55,7 +55,7 @@ Deno.serve(async (req) => {
     }
 
     // ADMIN ONLY — previously any authenticated user could relay arbitrary email.
-    if (user.user_metadata?.is_admin !== true) {
+    if (user.app_metadata?.is_admin !== true) {
       return json(req, { error: "Forbidden" }, 403);
     }
 

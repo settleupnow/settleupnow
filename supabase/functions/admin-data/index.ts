@@ -53,7 +53,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const isAdmin = user.user_metadata?.is_admin === true;
+    const isAdmin = user.app_metadata?.is_admin === true;
     if (!isAdmin) {
       return new Response(JSON.stringify({ error: "Forbidden" }), {
         status: 403,

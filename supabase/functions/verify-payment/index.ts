@@ -25,10 +25,11 @@ function json(req: Request, body: unknown, status = 200) {
 }
 
 // Server-side source of truth — the browser's claimed plan is NEVER trusted.
-// Amounts are in kobo (NGN minor units).
+// Amounts are in kobo (NGN minor units). planCode binds the Paystack
+// transaction to the expected subscription product.
 const PLANS = {
-  basic: { amountKobo: 250000, currency: "NGN" },
-  pro: { amountKobo: 350000, currency: "NGN" },
+  basic: { amountKobo: 250000, currency: "NGN", planCode: "PLN_4n23zjwe46m5yh2" },
+  pro: { amountKobo: 350000, currency: "NGN", planCode: "PLN_ng3gpqk3kdsigpp" },
 } as const;
 
 type Plan = keyof typeof PLANS;
@@ -101,69 +102,51 @@ Deno.serve(async (req) => {
     if (!payerEmail || !accountEmail || payerEmail !== accountEmail) {
       return json(req, { error: "Payer email does not match account" }, 400);
     }
+    // 3. Reference in the verified transaction must be the one submitted.
+    if (data.reference !== reference) {
+      return json(req, { error: "Payment does not match the selected plan" }, 400);
+    }
+    // 4. When Paystack reports plan info, it must be the expected product.
+    // (One-off charges omit it; amount + currency + email + reference bind those.)
+    const transactionPlan = typeof data.plan === "string"
+      ? data.plan
+      : data.plan?.plan_code;
+    if (transactionPlan != null && transactionPlan !== expected.planCode) {
+      return json(req, { error: "Payment does not match the selected plan" }, 400);
+    }
 
     const serviceClient = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
-    // 3. Single-use reference: reject if ANY profile already consumed it.
-    const { data: refTaken } = await serviceClient
-      .from("business_profile")
-      .select("user_id")
-      .eq("subscription_reference", reference)
-      .maybeSingle();
-    if (refTaken && refTaken.user_id !== userId) {
-      return json(req, { error: "Reference already used" }, 409);
+    // 5. Atomic activation: single-use reference + profile upsert in one RPC.
+    // A 23505 conflict means the reference was already consumed.
+    const paidAt = typeof data.paid_at === "string" ? data.paid_at : null;
+    const { error: activationError } = await serviceClient.rpc(
+      "activate_subscription_from_payment",
+      {
+        payment_reference: reference,
+        payment_user_id: userId,
+        payment_plan: plan,
+        payment_amount: data.amount,
+        payment_currency: data.currency ?? "NGN",
+        payment_provider: "paystack",
+        payment_paid_at: paidAt,
+      },
+    );
+
+    if (activationError) {
+      const alreadyUsed =
+        (activationError as { code?: string }).code === "23505" ||
+        /duplicate|already exists|already been used/i.test(activationError.message ?? "");
+      console.error("verify-payment activation error:", activationError.message);
+      return json(
+        req,
+        { error: alreadyUsed ? "Payment reference has already been used" : "Could not activate subscription" },
+        alreadyUsed ? 409 : 500,
+      );
     }
-
-    const now = new Date();
-    const expires = new Date(now);
-    expires.setDate(expires.getDate() + 30);
-
-    const { data: existing } = await serviceClient
-      .from("business_profile")
-      .select("id, subscription_reference")
-      .eq("user_id", userId)
-      .maybeSingle();
-
-    // Same-reference retry by the same user is idempotent, not an error.
-    if (existing && existing.subscription_reference === reference) {
-      return json(req, { ok: true, plan, deduped: true });
-    }
-
-    const update = {
-      subscription_status: "active",
-      subscription_plan: plan,
-      subscription_reference: reference,
-      subscription_started_at: now.toISOString(),
-      subscription_expires_at: expires.toISOString(),
-    };
-
-    if (existing?.id) {
-      const { error: upErr } = await serviceClient
-        .from("business_profile")
-        .update(update)
-        .eq("id", existing.id);
-      if (upErr) throw upErr;
-    } else {
-      const { error: insErr } = await serviceClient
-        .from("business_profile")
-        .insert({ user_id: userId, business_name: "", bank_name: "", bank_account_number: "", bank_account_name: "", ...update });
-      if (insErr) throw insErr;
-    }
-
-    // Best-effort payment ledger (ignored if table absent on older DBs).
-    await serviceClient.from("payment_events").insert({
-      user_id: userId,
-      provider: "paystack",
-      reference,
-      plan,
-      amount_kobo: data.amount,
-      currency: data.currency ?? "NGN",
-      payer_email: payerEmail,
-      raw: data,
-    }).then(() => {}, () => {});
 
     return json(req, { ok: true, plan });
   } catch (err: unknown) {

@@ -154,13 +154,6 @@ export default function AdminDashboard() {
   const screen = (searchParams.get("tab") as Screen) || "overview";
   const setScreen = (s: Screen) => setSearchParams({ tab: s });
 
-  useEffect(() => {
-    if (authLoading) return;
-    console.log("Full User Object:", user);
-    console.log("User Metadata:", user?.user_metadata);
-    console.log("is_admin value:", user?.user_metadata?.is_admin);
-  }, [user, authLoading]);
-
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -169,8 +162,7 @@ export default function AdminDashboard() {
     );
   }
 
-  if (!user || user.user_metadata?.is_admin !== true) {
-    console.log("Not admin, redirecting");
+  if (!user || user.app_metadata?.is_admin !== true) {
     return <Navigate to="/app" replace />;
   }
 

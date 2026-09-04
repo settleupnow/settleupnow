@@ -42,7 +42,15 @@ function daysDiff(date1: Date, date2: Date): number {
   return Math.round((d1.getTime() - d2.getTime()) / (1000 * 60 * 60 * 24));
 }
 
-function fillTemplate(template: string, invoice: any, overdueDays: number): string {
+interface ReminderInvoice {
+  client_name: string;
+  currency: string;
+  invoice_amount: number;
+  due_date: string;
+  invoice_number: string | null;
+}
+
+function fillTemplate(template: string, invoice: ReminderInvoice, overdueDays: number): string {
   return template
     .replace(/\{\{client_name\}\}/g, invoice.client_name)
     .replace(/\{\{invoice_amount\}\}/g, `${invoice.currency} ${invoice.invoice_amount}`)

@@ -27,7 +27,15 @@ function json(req: Request, body: unknown, status = 200) {
 
 const DEFAULT_EMAIL_BODY = `Hi {{client_name}},\n\nThis is a friendly reminder that your invoice {{invoice_number}} of {{invoice_amount}} was due on {{due_date}}. It is now {{days_overdue}} days overdue.\n\nPlease arrange payment at your earliest convenience.\n\nThank you.`;
 
-function fillTemplate(template: string, invoice: any, overdueDays: number): string {
+interface ReminderInvoice {
+  client_name: string;
+  currency: string;
+  invoice_amount: number;
+  due_date: string;
+  invoice_number: string | null;
+}
+
+function fillTemplate(template: string, invoice: ReminderInvoice, overdueDays: number): string {
   return template
     .replace(/\{\{client_name\}\}/g, invoice.client_name)
     .replace(/\{\{invoice_amount\}\}/g, `${invoice.currency} ${invoice.invoice_amount}`)
@@ -92,8 +100,8 @@ Deno.serve(async (req) => {
       return json(req, { error: "Invoice already paid" }, 400);
     }
 
-    // Testing: payment enforcement OFF — any authenticated owner can send.
-    // To re-enable, require business_profile.subscription_status === "active".
+    // Testing: subscription enforcement OFF — profile is loaded for the
+    // custom reminder template only.
     const { data: profile } = await userClient
       .from("business_profile")
       .select("reminder_template, subscription_status")
